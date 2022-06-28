@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html lang="en-US" xml:lang="en-US">
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+<meta name="date" content="2022-06-08" />
+
+<title>A quick application of coloclization analysis</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">A quick application of coloclization analysis</h1>
+<h4 class="date">2022-06-08</h4>
+
+
+
+<div id="before-we-start" class="section level2">
+<h2>Before we start</h2>
+<p>Colocalization analysis can be performed with <code>xQTLbiolinks</code> by providing their own GWAS summary statistics data. All we need to prepare include three parts:</p>
+<ol style="list-style-type: decimal">
+<li>GWAS summary statistics dataset.</li>
+<li>Name of tissue of interest.</li>
+<li>Following three installed packages.</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xQTLbiolinks)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
+</div>
+<div id="step-1.-data-preparation." class="section level2">
+<h2>Step 1. data preparation.</h2>
+<p>Download and load an example file of summary statistics dataset (GRCh38). We perform colocalization analysis in <code>Brain - Cerebellum</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gwasDF <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">&quot;http://raw.githubusercontent.com/dingruofan/exampleData/master/gwas/AD/gwasDFsub.txt&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>tissueSiteDetail<span class="ot">=</span><span class="st">&quot;Brain - Cerebellum&quot;</span></span></code></pre></div>
+<p>In this example, a data.table object of 16538 (rows) x 5 (cols) is loaded. Five columns are required (arbitrary column names is supported, but columns must be as the following order):</p>
+<p><code>Col 1</code>. “variants” (character), , using an rsID (e.g. “rs11966562”);</p>
+<p><code>Col 2</code>. “chromosome” (character), one of the chromosome from chr1-chr22;</p>
+<p><code>Col 3</code>. “position” (integer), genome position of snp;</p>
+<p><code>Col 4</code>. “P-value” (numeric);</p>
+<p><code>Col 5</code>. “MAF” (numeric). Allel frequency;</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(gwasDF)</span></code></pre></div>
+<pre><code>#&gt;          rsid chrom position   pValue    maf
+#&gt; 1: rs13120565  chr4 10702513 5.66e-10 0.6429
+#&gt; 2:  rs4697781  chr4 10703243 8.94e-10 0.6446
+#&gt; 3:  rs4697779  chr4 10701187 5.74e-09 0.3231
+#&gt; 4:  rs4697780  chr4 10701381 5.95e-09 0.3231
+#&gt; 5:  rs4547789  chr4 10702891 1.46e-08 0.3197
+#&gt; 6: rs11726285  chr4 10700944 1.47e-08 0.3214</code></pre>
+</div>
+<div id="step-2.-seek-sentinel-snps." class="section level2">
+<h2>Step 2. Seek sentinel snps.</h2>
+<p>Sentinel SNPs can be detected using <code>xQTLanalyze_getSentinelSnp</code> with the arguments <code>p-value &lt; 5e-8</code> and <code>SNP-to-SNP distance &gt; 10e6 bp</code>. We recommend converting the genome version of the GWAS file to GRCh38 if that is GRCh37 (run with parameter: <code>genomeVersion=&quot;grch37&quot;</code>; <code>grch37To38=TRUE</code>, and package <code>rtracklayer</code>is required).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sentinelSnpDF <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_getSentinelSnp</span>(gwasDF, <span class="at">pValueThreshold =</span> <span class="fl">5e-08</span>)</span></code></pre></div>
+<p>After filtering, a sentinel SNP with P-value&lt;5e-8 is detected in this example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sentinelSnpDF</span></code></pre></div>
+<pre><code>#&gt;          rsid  chr position   pValue    maf
+#&gt; 1: rs13120565 chr4 10702513 5.66e-10 0.6429</code></pre>
+</div>
+<div id="step-3.-identify-trait-genes-for-each-sentinel-snps." class="section level2">
+<h2>Step 3. Identify trait genes for each sentinel SNPs.</h2>
+<p>Trait genes are genes that located in the range of 1Mb (default, can be changed with parameter <code>detectRange</code>) of sentinel SNPs. Every gene within 1Mb of sentinel SNPs is searched by fuction <code>xQTLanalyze_getTraits</code>. Besides, In order to reduce the number of trait genes and thus reduce the running time, we take the overlap of eGenes and trait genes as the final output of the function <code>xQTLanalyze_getTraits</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>traitsAll <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_getTraits</span>(sentinelSnpDF, <span class="at">detectRange=</span><span class="fl">1e6</span>, <span class="at">tissueSiteDetail=</span>tissueSiteDetail)</span></code></pre></div>
+<p>Totally, 3 associations between 3 traits genes and 1 SNPs are detected</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>traitsAll</span></code></pre></div>
+<pre><code>#&gt;    chromosome geneStart  geneEnd geneStrand    geneSymbol          gencodeId
+#&gt; 1:       chr4  11393150 11429765          -        HS3ST1  ENSG00000002587.9
+#&gt; 2:       chr4  10486395 10684865          -          CLNK ENSG00000109684.14
+#&gt; 3:       chr4  10068089 10073019          - RP11-448G15.3  ENSG00000261490.1
+#&gt;          rsid position   pValue    maf
+#&gt; 1: rs13120565 10702513 5.66e-10 0.6429
+#&gt; 2: rs13120565 10702513 5.66e-10 0.6429
+#&gt; 3: rs13120565 10702513 5.66e-10 0.6429</code></pre>
+</div>
+<div id="step-4.-conduct-colocalization-analysis." class="section level2">
+<h2>Step 4. Conduct colocalization analysis.</h2>
+<p><strong>For a single trait gene</strong>, like <em>CLNK</em> in above table, colocalization analysis can be performed with:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_coloc</span>(gwasDF, <span class="st">&quot;CLNK&quot;</span>, <span class="at">tissueSiteDetail=</span>tissueSiteDetail) <span class="co"># using gene symbol</span></span></code></pre></div>
+<p><em>output</em> is a list, including three parts: <em>coloc_Out_summary</em>, <em>gwasEqtlInfo</em>, and <em>gwasEqtlInfo</em>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>output<span class="sc">$</span>coloc_Out_summary</span></code></pre></div>
+<pre><code>#&gt;    nsnps    PP.H0.abf   PP.H1.abf    PP.H2.abf  PP.H3.abf PP.H4.abf traitGene
+#&gt; 1:  7108 7.097893e-11 1.32221e-07 3.890211e-06 0.00625302  0.993743      CLNK</code></pre>
+<p><strong>For multiple trait genes</strong>, a for loop or lapply function can be used to get all genes’ outputs.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>outputs <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>( <span class="fu">unique</span>(traitsAll<span class="sc">$</span>gencodeId), <span class="cf">function</span>(x){ <span class="co"># using gencode ID.</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>           <span class="fu">xQTLanalyze_coloc</span>(gwasDF, x, <span class="at">tissueSiteDetail=</span>tissueSiteDetail)<span class="sc">$</span>coloc_Out_summary }))</span></code></pre></div>
+<p><em>outputs</em> is a data.table that combined all results of <em>coloc_Out_summary</em> of all genes.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>outputs</span></code></pre></div>
+<pre><code>#&gt;    nsnps    PP.H0.abf    PP.H1.abf    PP.H2.abf  PP.H3.abf  PP.H4.abf
+#&gt; 1:  6453 1.730172e-05 3.218423e-02 6.603463e-05 0.12199027 0.84574216
+#&gt; 2:  7108 7.097893e-11 1.322210e-07 3.890211e-06 0.00625302 0.99374296
+#&gt; 3:  6601 5.287051e-05 9.848309e-02 4.801374e-04 0.89435622 0.00662768
+#&gt;             traitGene
+#&gt; 1:  ENSG00000002587.9
+#&gt; 2: ENSG00000109684.14
+#&gt; 3:  ENSG00000261490.1</code></pre>
+</div>
+<div id="step-5.-visualization-of-the-results." class="section level2">
+<h2>Step 5. Visualization of the results.</h2>
+<p>For the potential casual gene (<strong><em>ENSG00000187323.11</em></strong>, PP4=<strong>0.9937</strong>), We merge the variants of GWAS and eQTL by rsid.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>eqtlAsso <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">gene=</span><span class="st">&quot;ENSG00000109684.14&quot;</span>, </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">tissueLabel =</span> tissueSiteDetail)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>gwasEqtldata <span class="ot">&lt;-</span> <span class="fu">merge</span>(gwasDF, eqtlAsso[,.(<span class="at">rsid=</span>snpId, <span class="at">position=</span>pos, maf, pValue)],</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>, <span class="st">&quot;position&quot;</span>), <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">&quot;.gwas&quot;</span>,<span class="st">&quot;.eqtl&quot;</span>))</span></code></pre></div>
+<p>Visualization of p-value distribution and comparison of the signals of GWAS and eQTL:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCompare</span>(gwasEqtldata[,.(rsid, pValue.eqtl)], </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                       gwasEqtldata[,.(rsid, pValue.gwas)], <span class="at">legend_position =</span> <span class="st">&quot;bottomright&quot;</span>)</span></code></pre></div>
+<p>Locuszoom plot of GWAS signals:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.gwas)], <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<p>Locuszoom plot of eQTL signals:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.eqtl)], </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">highlightSnp =</span> <span class="st">&quot;rs13120565&quot;</span>, <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<p>Violin plot of normalized exprssion of eQTL:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_eqtlExp</span>(<span class="st">&quot;rs13120565&quot;</span>, <span class="st">&quot;ENSG00000109684.14&quot;</span>, <span class="at">tissueSiteDetail =</span> tissueSiteDetail)</span></code></pre></div>
+<p>We can also combine locuscompare and locuszoom plot using <code>xQTLvisual_locusCombine</code>:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCombine</span>(gwasEqtldata[,<span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>,<span class="st">&quot;chrom&quot;</span>, <span class="st">&quot;position&quot;</span>, <span class="st">&quot;pValue.gwas&quot;</span>, <span class="st">&quot;pValue.eqtl&quot;</span>)], </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">highlightSnp=</span><span class="st">&quot;rs13120565&quot;</span>)</span></code></pre></div>
+<p>For applying <code>xQTLbiolinks</code> to a whole case study, please find this <a href="https://dingruofan.github.io/xQTLbiolinks/articles/Colocalization_analysis_with_xQTLbiolinks.html"><strong>Document</strong></a>.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
