@@ -177,20 +177,20 @@ div.csl-indent {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xQTLbiolinks)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
 <p>Prostate cancer is one of the most common cancers in men. Prostate cancer pathogenesis involves both heritable and environmental factors. The molecular events involved in the development or progression of prostate cancer are still unclear. In this example, we aim to figure out the causal variants and genes assocaited with prostate cancer, and to uncover potential molecular mechanisms of regulation.</p>
-<p>For data preparation, we download summary statistics dataset of a GWAS study (<a href="http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST006001-GCST007000/GCST006085/harmonised/29892016-GCST006085-EFO_0001663-build37.f.tsv.gz">GCST006085</a>) of prostate cancer from GWAS category and load the dataset in R with <code>data.table</code> package. Correspondingly, we chose tissue <code>Porstate</code> for study. We retain the variants with dbSNP id (start with <code>rs</code>), and a data.table object named <code>gwasDF</code> of 13,498,990 (rows) x 5 (cols) is loaded.</p>
+<p>For data preparation, we download summary statistics dataset of a GWAS study (<a href="http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST006001-GCST007000/GCST006085/harmonised/29892016-GCST006085-EFO_0001663-build37.f.tsv.gz">GCST006085</a>) of prostate cancer from GWAS category and load the dataset in R with <code>data.table</code> package. Correspondingly, we chose tissue <code>Prostate</code> for study. We retain the variants with dbSNP id (start with <code>rs</code>), and a data.table object named <code>gwasDF</code> of 13,498,990 (rows) x 7 (cols) is loaded.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gwasDF <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">&quot;29892016-GCST006085-EFO_0001663-build37.f.tsv.gz&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># extract columns.</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>gwasDF<span class="ot">&lt;-</span> gwasDF[<span class="fu">str_detect</span>(variant_id, <span class="st">&quot;^rs&quot;</span>),.(<span class="at">rsid=</span>variant_id, <span class="at">chrom=</span>chromosome, <span class="at">position=</span> base_pair_location, <span class="at">pValue=</span>p_value, <span class="at">AF=</span>effect_allele_frequency)]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>gwasDF<span class="ot">&lt;-</span> gwasDF[<span class="fu">str_detect</span>(variant_id, <span class="st">&quot;^rs&quot;</span>),.(<span class="at">rsid=</span>variant_id, <span class="at">chrom=</span>chromosome, <span class="at">position=</span> base_pair_location, <span class="at">pValue=</span>p_value, <span class="at">AF=</span>effect_allele_frequency, beta, <span class="at">se=</span> standard_error)]</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># tissue:</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>tissueSiteDetail<span class="ot">=</span><span class="st">&quot;Prostate&quot;</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(gwasDF)</span></code></pre></div>
-<pre><code>#&gt;     chr position chr_position        rsid    beta     se      N p-value    maf
-#&gt; 1: chr1    10177   chr1:10177 rs201752861 -0.0211 0.0136 140254  0.1217 0.6104
-#&gt; 2: chr1    11008   chr1:11008 rs575272151 -0.0204 0.0196 140254  0.2979 0.9058
-#&gt; 3: chr1    11012   chr1:11012 rs544419019 -0.0204 0.0196 140254  0.2979 0.9058
-#&gt; 4: chr1    13110   chr1:13110 rs540538026 -0.0377 0.0332 140254  0.2565 0.0589
-#&gt; 5: chr1    13116   chr1:13116  rs62635286 -0.0035 0.0178 140254  0.8447 0.8255
-#&gt; 6: chr1    13118   chr1:13118 rs200579949 -0.0035 0.0178 140254  0.8447 0.8255</code></pre>
+<pre><code>#&gt;           rsid chrom position  pValue     AF    beta     se
+#&gt; 1: rs145072688     1    10352 0.46280 0.5753 -0.0094 0.0128
+#&gt; 2: rs376342519     1    10616 0.41070 0.0066  0.0572 0.0696
+#&gt; 3: rs201725126     1    13116 0.84470 0.8255 -0.0035 0.0178
+#&gt; 4: rs200579949     1    13118 0.84470 0.8255 -0.0035 0.0178
+#&gt; 5:  rs75454623     1    14930 0.61880 0.4772 -0.0065 0.0131
+#&gt; 6: rs199856693     1    14933 0.02721 0.0407 -0.0794 0.0360</code></pre>
 </div>
 <div id="step-1-filter-sentinel-snps." class="section level2">
 <h2>Step 1: Filter sentinel snps.</h2>
@@ -199,13 +199,13 @@ div.csl-indent {
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">genomeVersion=</span><span class="st">&quot;grch37&quot;</span>, <span class="at">grch37To38=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <p>A total of 94 sentinel SNPs are detected.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sentinelSnpDF)</span></code></pre></div>
-<pre><code>#&gt;           rsid  chr  position    pValue    maf
-#&gt; 1:  rs55664108 chr1 204587862 8.572e-25 0.7157
-#&gt; 2:  rs35296356 chr1 150601662 3.355e-14 0.3384
-#&gt; 3:  rs34579442 chr1 153927424 4.478e-14 0.6637
-#&gt; 4: rs146564277 chr1 155051619 1.577e-12 0.0301
-#&gt; 5:  rs34848415 chr1 205762038 2.893e-09 0.5231
-#&gt; 6:  rs56391074 chr1  87745032 1.659e-08 0.6298</code></pre>
+<pre><code>#&gt;           rsid  chr  position    pValue    maf    beta     se
+#&gt; 1:  rs55664108 chr1 204587862 8.572e-25 0.7157  0.0912 0.0089
+#&gt; 2:  rs35296356 chr1 150601662 3.355e-14 0.3384 -0.0690 0.0091
+#&gt; 3:  rs34579442 chr1 153927424 4.478e-14 0.6637 -0.0655 0.0087
+#&gt; 4: rs146564277 chr1 155051619 1.577e-12 0.0301 -0.1850 0.0262
+#&gt; 5:  rs34848415 chr1 205762038 2.893e-09 0.5231 -0.0501 0.0084
+#&gt; 6:  rs56391074 chr1  87745032 1.659e-08 0.6298 -0.0466 0.0082</code></pre>
 </div>
 <div id="step-2-identify-trait-genes-for-each-sentinel-snps." class="section level2">
 <h2>Step 2: Identify trait genes for each sentinel SNPs.</h2>
@@ -234,20 +234,20 @@ div.csl-indent {
 <ol style="list-style-type: decimal">
 <li>Retrieved all associations from EBI eQTL catalogue for a specified gene.</li>
 <li>Merge the data.frame of GWAS and eQTL by rsid.</li>
-<li>Perform colocalization analysis using coloc package.</li>
+<li>Perform colocalization analysis using <code>coloc</code> and <code>hyprcoloc</code> methods.</li>
 </ol>
 <p>For above 835 trait genes, a for loop can be used to get these genes’ outputs of colocalization analysis (this may take several hours):</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>genesAll<span class="ot">&lt;-</span> <span class="fu">unique</span>(traitsAll<span class="sc">$</span>gencodeId)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>colocResultAll <span class="ot">&lt;-</span> <span class="fu">data.table</span>()</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 162 575 error</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(genesAll)){</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  colocResult <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_coloc</span>(gwasDF, </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">genomeVersion =</span> <span class="st">&quot;grch37&quot;</span>, </span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                                   genesAll[i], <span class="at">tissueSiteDetail=</span>tissueSiteDetail)<span class="sc">$</span>coloc_Out_summary</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(colocResult)){ colocResultAll <span class="ot">&lt;-</span> <span class="fu">rbind</span>(colocResultAll, colocResult)}</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">genomeVersion =</span> <span class="st">&quot;grch37&quot;</span>, <span class="at">method=</span><span class="st">&quot;Both&quot;</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                                   genesAll[i], <span class="at">tissueSiteDetail=</span>tissueSiteDetail)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(colocResult)){ colocResultAll <span class="ot">&lt;-</span> <span class="fu">rbind</span>(colocResultAll, colocResult<span class="sc">$</span>colocOut)}</span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="fu">format</span>(<span class="fu">Sys.time</span>(), <span class="st">&quot;== %Y-%b-%d %H:%M:%S &quot;</span>),<span class="st">&quot; == Id:&quot;</span>,i,<span class="st">&quot;/&quot;</span>,<span class="fu">length</span>(genesAll),<span class="st">&quot; == Gene:&quot;</span>,genesAll[i])</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>In this case, we invoke the funciton <code>coloc.abf</code> from package <code>coloc</code> to estimate the posterior support of variants for each hypothesis: H0,H1,H2,H3,H4:</p>
+<p>In this case, we invoke two methods to conduct colocalization analysis, (1). <code>coloc</code> that estimates the posterior support of variants for each hypothesis: H0,H1,H2,H3,H4:</p>
 <ul>
 <li>H0 : neither trait has a genetic association in the region</li>
 <li>H1: only trait 1 has a genetic association in the region</li>
@@ -255,93 +255,137 @@ div.csl-indent {
 <li>H3: both traits are associated, but with different causal variants</li>
 <li>H4: both traits are associated and share a single causal variant</li>
 </ul>
-<p>Output is a data.table that combined all results of <code>coloc_Out_summary</code> of all genes. The posterior probability of variants to each hypothesis (H0-H4) are listed in <code>colocResultAll</code>:</p>
+<p>and (2). <code>hyprcoloc</code> that calculates the posterior probability that all traits share a causal variant.</p>
+<p>Output is a data.table object that combined all results of <code>colocOut</code> of all genes.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(colocResultAll)</span></code></pre></div>
-<pre><code>#&gt;    nsnps    PP.H0.abf   PP.H1.abf    PP.H2.abf PP.H3.abf    PP.H4.abf
-#&gt; 1:  5666 3.339109e-19 0.333928806 6.435451e-19 0.6435572 2.251401e-02
-#&gt; 2:  5509 6.902252e-20 0.069026225 9.265196e-19 0.9265649 4.408886e-03
-#&gt; 3:  5072 6.447026e-19 0.644737236 3.172030e-19 0.3171819 3.808084e-02
-#&gt; 4:  5863 4.318128e-22 0.000431836 9.994821e-19 0.9995357 3.245264e-05
-#&gt; 5:  5688 5.603139e-19 0.560343948 3.653347e-19 0.3652799 7.437616e-02
-#&gt; 6:  5661 3.421306e-19 0.342148992 6.147008e-19 0.6146906 4.316040e-02
-#&gt;             traitGene
-#&gt; 1: ENSG00000117222.13
-#&gt; 2: ENSG00000133059.16
-#&gt; 3: ENSG00000162873.14
-#&gt; 4: ENSG00000163531.15
-#&gt; 5:  ENSG00000170498.8
-#&gt; 6:  ENSG00000174567.7</code></pre>
+<pre><code>#&gt;             traitGene nsnps    PP.H0.abf    PP.H1.abf    PP.H2.abf  PP.H3.abf
+#&gt; 1: ENSG00000001167.14  6205 2.072318e-15 0.2592617382 5.785196e-15 0.72375223
+#&gt; 2: ENSG00000002919.14  4883 2.252628e-42 0.0004579085 4.916915e-39 0.99949789
+#&gt; 3: ENSG00000003393.14  3901 4.134900e-03 0.5826462177 2.588394e-03 0.36468313
+#&gt; 4: ENSG00000003400.14  4549 7.800693e-05 0.0111580704 6.692117e-04 0.09483042
+#&gt; 5: ENSG00000005020.12  5271 1.551832e-32 0.4907383003 1.308029e-32 0.41354432
+#&gt; 6: ENSG00000005379.15  4413 9.273629e-03 0.4357011132 1.079004e-02 0.50690919
+#&gt;       PP.H4.abf candidate_snp SNP.PP.H4 hypr_posterior hypr_regional_prob
+#&gt; 1: 1.698603e-02     rs9369290 0.2487894         0.0000             0.0079
+#&gt; 2: 4.420283e-05   rs138467395 1.0000000         0.0000             0.0174
+#&gt; 3: 4.594735e-02    rs59308963 0.1405084         0.0003             0.0126
+#&gt; 4: 8.932643e-01    rs12620010 0.2315255         0.7922             0.9931
+#&gt; 5: 9.571738e-02    rs17156041 0.6731519         0.0005             0.0373
+#&gt; 6: 3.732603e-02     rs2189681 0.3030656         0.0002             0.0129
+#&gt;    hypr_candidate_snp hypr_posterior_explainedBySnp
+#&gt; 1:          rs9369290                        0.2752
+#&gt; 2:        rs138467395                        1.0000
+#&gt; 3:         rs59308963                        0.1434
+#&gt; 4:         rs12620010                        0.3882
+#&gt; 5:         rs17156041                        0.6855
+#&gt; 6:          rs2189681                        0.1829</code></pre>
+<p>We can see that the two methodologies’ outcomes are quite consistent. With a threshold of 0.75 for <code>coloc</code> and 0.5 for <code>hyprcoloc</code>, a total of 24 colocalized genes are shared.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(VennDiagram)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="fu">venn.diagram</span>( <span class="fu">list</span>(<span class="at">colocOut =</span> colocResultAll[PP.H4.abf<span class="sc">&gt;=</span><span class="fl">0.75</span>]<span class="sc">$</span>traitGene, </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">hyprcolocOut =</span> colocResultAll[hypr_posterior<span class="sc">&gt;=</span><span class="fl">0.5</span>]<span class="sc">$</span>traitGene),</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">filename =</span> <span class="cn">NULL</span>,<span class="at">lwd=</span><span class="dv">1</span>,<span class="at">lty=</span><span class="dv">1</span>, <span class="at">width =</span> <span class="dv">8000</span>, <span class="at">height =</span> <span class="dv">10000</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">fill=</span><span class="fu">c</span>(<span class="st">&#39;#ff7a45&#39;</span>,<span class="st">&#39;#597ef7&#39;</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">&#39;red&#39;</span>,<span class="st">&#39;blue&#39;</span>), <span class="at">cat.col=</span><span class="fu">c</span>(<span class="st">&#39;red&#39;</span>,<span class="st">&#39;blue&#39;</span>),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">main.cex =</span> <span class="fl">0.45</span>, <span class="at">sub.cex=</span> <span class="fl">0.1</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">disable.logging =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.draw</span>(T)</span></code></pre></div>
 <p>To save time and go through this case as soon as possible, you can get the above result directly with:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>colocResultAll <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">&quot;https://raw.githubusercontent.com/dingruofan/exampleData/master/colocResultAll.txt&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>colocResultAll <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">&quot;https://raw.githubusercontent.com/dingruofan/exampleData/master/colocResultAll.txt&quot;</span>)</span></code></pre></div>
 </div>
 <div id="step-4-visualization-of-the-results." class="section level2">
 <h2>Step 4: Visualization of the results.</h2>
-<p>We considered colocalization tests with a posterior probability of hypothesis 4 (PPH4.ABF) ≥ 0.75 as having strong or moderate evidence for colocalization.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>colocResultsig <span class="ot">&lt;-</span> colocResultAll[PP.H4.abf<span class="sc">&gt;</span><span class="fl">0.75</span>][<span class="fu">order</span>(<span class="sc">-</span>PP.H4.abf)]</span></code></pre></div>
-<p>There are 27 trait genes that are associated and share a single causal variant:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(colocResultsig)</span></code></pre></div>
-<pre><code>#&gt;    nsnps    PP.H0.abf    PP.H1.abf    PP.H2.abf   PP.H3.abf PP.H4.abf
-#&gt; 1:  7108 3.722120e-16 7.637674e-04 1.159909e-15 0.001382244 0.9978540
-#&gt; 2:  5034 2.405778e-32 1.349362e-05 8.271165e-30 0.003642818 0.9963437
-#&gt; 3:  6045 1.551367e-07 1.220850e-05 1.078421e-04 0.007494261 0.9923855
-#&gt; 4:  5389 1.594413e-24 5.835862e-07 2.875803e-20 0.009535535 0.9904639
-#&gt; 5:  6154 4.387457e-18 6.631626e-03 6.233624e-18 0.008437170 0.9849312
-#&gt; 6:  4616 1.043225e-19 1.214959e-02 6.298351e-20 0.006353677 0.9814967
-#&gt;             traitGene
-#&gt; 1:  ENSG00000137673.8
-#&gt; 2: ENSG00000167641.10
-#&gt; 3: ENSG00000184058.12
-#&gt; 4: ENSG00000115486.11
-#&gt; 5: ENSG00000179409.10
-#&gt; 6:  ENSG00000277744.1</code></pre>
+<p>We considered colocalization tests with a posterior probability of hypothesis 4 (PPH4.ABF) &gt; 0.75 &amp; hypr_posterior &gt; 0.5 as having strong or moderate evidence for colocalization.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>colocResultsig <span class="ot">&lt;-</span> colocResultAll[PP.H4.abf<span class="sc">&gt;</span><span class="fl">0.75</span> <span class="sc">&amp;</span> hypr_posterior<span class="sc">&gt;</span><span class="fl">0.5</span>][<span class="fu">order</span>(<span class="sc">-</span>PP.H4.abf)]</span></code></pre></div>
+<p>There are 24 trait genes that are associated and share a single causal variant:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(colocResultsig)</span></code></pre></div>
+<pre><code>#&gt;             traitGene nsnps    PP.H0.abf    PP.H1.abf    PP.H2.abf   PP.H3.abf
+#&gt; 1:  ENSG00000137673.8  7108 3.722120e-16 7.637674e-04 1.159909e-15 0.001382244
+#&gt; 2: ENSG00000167641.10  5034 2.405778e-32 1.349362e-05 8.271165e-30 0.003642818
+#&gt; 3: ENSG00000184058.12  6045 1.551367e-07 1.220850e-05 1.078421e-04 0.007494261
+#&gt; 4: ENSG00000115486.11  5389 1.594413e-24 5.835862e-07 2.875803e-20 0.009535535
+#&gt; 5: ENSG00000179409.10  6154 4.387457e-18 6.631626e-03 6.233624e-18 0.008437170
+#&gt; 6:  ENSG00000277744.1  4616 1.043225e-19 1.214959e-02 6.298351e-20 0.006353677
+#&gt;    PP.H4.abf candidate_snp SNP.PP.H4 hypr_posterior hypr_regional_prob
+#&gt; 1: 0.9978540    rs11568818 0.9999999         0.9993             0.9998
+#&gt; 2: 0.9963437     rs7247241 0.2491879         0.9911             1.0000
+#&gt; 3: 0.9923855     rs2238775 0.3010829         0.9778             0.9995
+#&gt; 4: 0.9904639    rs10175792 0.2836228         0.9830             1.0000
+#&gt; 5: 0.9849312     rs2740358 0.9401973         0.9869             0.9960
+#&gt; 6: 0.9814967     rs2079811 0.9999034         0.9924             0.9943
+#&gt;    hypr_candidate_snp hypr_posterior_explainedBySnp
+#&gt; 1:         rs11568818                        1.0000
+#&gt; 2:          rs4802297                        0.2738
+#&gt; 3:          rs2238775                        0.3230
+#&gt; 4:         rs10175792                        0.3449
+#&gt; 5:          rs2740358                        0.8927
+#&gt; 6:          rs2079811                        1.0000</code></pre>
 <p>All these genes’ details can be fetched with <code>xQTLquery_gene</code>:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>outGenes <span class="ot">&lt;-</span> <span class="fu">xQTLquery_gene</span>(colocResultsig<span class="sc">$</span>traitGene)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>outGenes <span class="ot">&lt;-</span> <span class="fu">xQTLquery_gene</span>(colocResultsig<span class="sc">$</span>traitGene)</span></code></pre></div>
 <p>Add the value of PPH4 for each gene, and remove non-protein-coding genes:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>outGenes <span class="ot">&lt;-</span> <span class="fu">merge</span>(colocResultsig[,.(<span class="at">gencodeId=</span> traitGene, PP.H4.abf)], </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                  outGenes[,.(geneSymbol, gencodeId, entrezGeneId, geneType)], <span class="at">by=</span><span class="st">&quot;gencodeId&quot;</span>, <span class="at">sort=</span><span class="cn">FALSE</span>)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>outGenes <span class="ot">&lt;-</span> outGenes[geneType <span class="sc">==</span><span class="st">&quot;protein coding&quot;</span>]</span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>outGenes</span></code></pre></div>
-<pre><code>#&gt;              gencodeId PP.H4.abf geneSymbol entrezGeneId       geneType
-#&gt;  1:  ENSG00000137673.8 0.9978540       MMP7         4316 protein coding
-#&gt;  2: ENSG00000167641.10 0.9963437   PPP1R14A        94274 protein coding
-#&gt;  3: ENSG00000184058.12 0.9923855       TBX1         6899 protein coding
-#&gt;  4: ENSG00000115486.11 0.9904639       GGCX         2677 protein coding
-#&gt;  5: ENSG00000179409.10 0.9849312     GEMIN4        50628 protein coding
-#&gt;  6: ENSG00000117280.12 0.9701717      RAB29         8934 protein coding
-#&gt;  7: ENSG00000184012.11 0.9652282    TMPRSS2         7113 protein coding
-#&gt;  8: ENSG00000069275.12 0.9625282     NUCKS1        64710 protein coding
-#&gt;  9: ENSG00000099331.13 0.9607259      MYO9B         4650 protein coding
-#&gt; 10: ENSG00000155749.12 0.9538274   ALS2CR12       130540 protein coding
-#&gt; 11: ENSG00000118961.14 0.9294589       LDAH        60526 protein coding
-#&gt; 12: ENSG00000101751.10 0.9271138       POLI        11201 protein coding
-#&gt; 13: ENSG00000167695.14 0.9203321     FAM57A        79850 protein coding
-#&gt; 14:  ENSG00000172613.7 0.9099755      RAD9A         5883 protein coding
-#&gt; 15:  ENSG00000180535.3 0.8941134    BHLHA15       168620 protein coding
-#&gt; 16: ENSG00000003400.14 0.8932643     CASP10          843 protein coding
-#&gt; 17: ENSG00000115648.13 0.8889021       MLPH        79083 protein coding
-#&gt; 18: ENSG00000162877.12 0.8849219     PM20D1       148811 protein coding
-#&gt; 19: ENSG00000204536.13 0.8733027     CCHCR1        54535 protein coding
-#&gt; 20:  ENSG00000091844.7 0.8629044      RGS17        26575 protein coding
-#&gt; 21:  ENSG00000083937.8 0.8388545     CHMP2B        25978 protein coding
-#&gt; 22: ENSG00000136819.15 0.8365468    C9orf78        51759 protein coding
-#&gt; 23: ENSG00000065060.16 0.7937810   UHRF1BP1        54887 protein coding
-#&gt; 24: ENSG00000198625.12 0.7695907       MDM4         4194 protein coding
-#&gt;              gencodeId PP.H4.abf geneSymbol entrezGeneId       geneType</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>outGenes <span class="ot">&lt;-</span> <span class="fu">merge</span>(colocResultsig[,.(<span class="at">gencodeId=</span> traitGene, PP.H4.abf, candidate_snp, SNP.PP.H4, hypr_posterior)], </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                  outGenes[,.(geneSymbol, gencodeId, entrezGeneId, geneType)], <span class="at">by=</span><span class="st">&quot;gencodeId&quot;</span>, <span class="at">sort=</span><span class="cn">FALSE</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>outGenes <span class="ot">&lt;-</span> outGenes[geneType <span class="sc">==</span><span class="st">&quot;protein coding&quot;</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>outGenes</span></code></pre></div>
+<pre><code>#&gt;              gencodeId PP.H4.abf candidate_snp  SNP.PP.H4 hypr_posterior
+#&gt;  1:  ENSG00000137673.8 0.9978540    rs11568818 0.99999989         0.9993
+#&gt;  2: ENSG00000167641.10 0.9963437     rs7247241 0.24918793         0.9911
+#&gt;  3: ENSG00000184058.12 0.9923855     rs2238775 0.30108289         0.9778
+#&gt;  4: ENSG00000115486.11 0.9904639    rs10175792 0.28362278         0.9830
+#&gt;  5: ENSG00000179409.10 0.9849312     rs2740358 0.94019727         0.9869
+#&gt;  6: ENSG00000117280.12 0.9701717      rs708723 0.31910829         0.9428
+#&gt;  7: ENSG00000184012.11 0.9652282     rs6517673 0.37410718         0.9127
+#&gt;  8: ENSG00000069275.12 0.9625282      rs823154 0.29904947         0.9364
+#&gt;  9: ENSG00000099331.13 0.9607259    rs11666569 0.24161844         0.9293
+#&gt; 10: ENSG00000155749.12 0.9538274     rs7560328 0.20927651         0.8966
+#&gt; 11: ENSG00000118961.14 0.9294589     rs9306895 0.48924035         0.7300
+#&gt; 12: ENSG00000101751.10 0.9271138     rs3730783 0.08842167         0.8321
+#&gt; 13:  ENSG00000172613.7 0.9099755    rs35826789 0.69464894         0.9038
+#&gt; 14:  ENSG00000180535.3 0.8941134     rs6465657 0.15229260         0.8643
+#&gt; 15: ENSG00000003400.14 0.8932643    rs12620010 0.23152548         0.7922
+#&gt; 16: ENSG00000115648.13 0.8889021    rs72620824 0.35924147         0.7378
+#&gt; 17: ENSG00000162877.12 0.8849219     rs1772159 0.28436834         0.5931
+#&gt; 18: ENSG00000204536.13 0.8733027     rs2517985 0.12887177         0.7333
+#&gt; 19: ENSG00000136819.15 0.8365468    rs13300897 0.12522776         0.7313
+#&gt; 20: ENSG00000065060.16 0.7937810   rs112283401 0.02533245         0.6114
+#&gt; 21: ENSG00000198625.12 0.7695907     rs2169137 0.12300108         0.6086
+#&gt;              gencodeId PP.H4.abf candidate_snp  SNP.PP.H4 hypr_posterior
+#&gt;     geneSymbol entrezGeneId       geneType
+#&gt;  1:       MMP7         4316 protein coding
+#&gt;  2:   PPP1R14A        94274 protein coding
+#&gt;  3:       TBX1         6899 protein coding
+#&gt;  4:       GGCX         2677 protein coding
+#&gt;  5:     GEMIN4        50628 protein coding
+#&gt;  6:      RAB29         8934 protein coding
+#&gt;  7:    TMPRSS2         7113 protein coding
+#&gt;  8:     NUCKS1        64710 protein coding
+#&gt;  9:      MYO9B         4650 protein coding
+#&gt; 10:   ALS2CR12       130540 protein coding
+#&gt; 11:       LDAH        60526 protein coding
+#&gt; 12:       POLI        11201 protein coding
+#&gt; 13:      RAD9A         5883 protein coding
+#&gt; 14:    BHLHA15       168620 protein coding
+#&gt; 15:     CASP10          843 protein coding
+#&gt; 16:       MLPH        79083 protein coding
+#&gt; 17:     PM20D1       148811 protein coding
+#&gt; 18:     CCHCR1        54535 protein coding
+#&gt; 19:    C9orf78        51759 protein coding
+#&gt; 20:   UHRF1BP1        54887 protein coding
+#&gt; 21:       MDM4         4194 protein coding
+#&gt;     geneSymbol entrezGeneId       geneType</code></pre>
 <p>Ridgeline plot can be used to compare the expressions among these genes:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_genesExp</span>(outGenes<span class="sc">$</span>geneSymbol, <span class="at">tissueSiteDetail=</span>tissueSiteDetail)</span></code></pre></div>
-<p>Trait gene <strong><code>MMP7</code></strong> that with the highest <code>PPH4.ABF=0.9978</code> encodes a member of the peptidase M10 family of matrix metalloproteinases, which is involved in the breakdown of extracellular matrix in normal physiological processes, such as embryonic development, reproduction, and tissue remodeling, as well as in disease processes, such as arthritis and metastasis <span class="citation">(<a href="#ref-RefSeq" role="doc-biblioref"><span>“RefSeq,”</span> n.d.</a>)</span>. Prostate cancer can be promoted via MMP7-induced epithelial-to-mesenchymal transition by Interleukin-17 <span class="citation">(<a href="#ref-zhang2017" role="doc-biblioref">Zhang et al. 2017</a>)</span>. Resent literature has shown that serum MMP7 levels could guide metastatic therapy for prostate cancer <span class="citation">(<a href="#ref-tregunna2020" role="doc-biblioref">Tregunna 2020</a>)</span>.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_genesExp</span>(outGenes<span class="sc">$</span>geneSymbol, <span class="at">tissueSiteDetail=</span>tissueSiteDetail)</span></code></pre></div>
+<p>Trait gene <strong><code>MMP7</code></strong> that with the highest <code>PPH4.ABF=0.9978</code> &amp; <code>hypr_posterior=0.9993</code> encodes a member of the peptidase M10 family of matrix metalloproteinases, which is involved in the breakdown of extracellular matrix in normal physiological processes, such as embryonic development, reproduction, and tissue remodeling, as well as in disease processes, such as arthritis and metastasis <span class="citation">(<a href="#ref-RefSeq" role="doc-biblioref"><span>“RefSeq,”</span> n.d.</a>)</span>. Prostate cancer can be promoted via MMP7-induced epithelial-to-mesenchymal transition by Interleukin-17 <span class="citation">(<a href="#ref-zhang2017" role="doc-biblioref">Zhang et al. 2017</a>)</span>. Resent literature has shown that serum MMP7 levels could guide metastatic therapy for prostate cancer <span class="citation">(<a href="#ref-tregunna2020" role="doc-biblioref">Tregunna 2020</a>)</span>.</p>
 <p>Expression of MMP7 in multiple tissues can be plotted with <code>xQTLvisual_geneExpTissues</code>:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>geneExpTissues <span class="ot">&lt;-</span> <span class="fu">xQTLvisual_geneExpTissues</span>(<span class="st">&quot;MMP7&quot;</span>, <span class="at">log10y =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>geneExpTissues <span class="ot">&lt;-</span> <span class="fu">xQTLvisual_geneExpTissues</span>(<span class="st">&quot;MMP7&quot;</span>, <span class="at">log10y =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>The number and significance of eQTLs in distinguished tissues are capable of showing a tissue-specific effect or a ubiquitous effect. The function <code>xQTLvisual_eqtl</code> can be used to indicate whether the gene is widely regulation in various tissues.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_eqtl</span>(<span class="st">&quot;MMP7&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_eqtl</span>(<span class="st">&quot;MMP7&quot;</span>)</span></code></pre></div>
 <p>Besides, we provide functions <code>xQTLvisual_locusCompare</code> and <code>xQTLvisual_locusZoom</code> to visualize the colocalization between the GWAS and the eQTL dataset for a specified gene, we take the gene <code>MMP7</code> as an example:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Download all eQTL associations of gene  MMP7 in prostate:</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>eqtlAsso <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">gene=</span><span class="st">&quot;MMP7&quot;</span>,<span class="at">tissueLabel =</span> tissueSiteDetail)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the variants of GWAS and eQTL dataset by rsid:</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>gwasEqtldata <span class="ot">&lt;-</span> <span class="fu">merge</span>(gwasDF[,<span class="sc">-</span><span class="fu">c</span>(<span class="st">&quot;AF&quot;</span>)], eqtlAsso[,.(<span class="at">rsid=</span>snpId, pValue)],</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>), <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">&quot;.gwas&quot;</span>,<span class="st">&quot;.eqtl&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Download all eQTL associations of gene  MMP7 in prostate:</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>eqtlAsso <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">gene=</span><span class="st">&quot;MMP7&quot;</span>,<span class="at">tissueLabel =</span> tissueSiteDetail)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the variants of GWAS and eQTL dataset by rsid:</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>gwasEqtldata <span class="ot">&lt;-</span> <span class="fu">merge</span>(gwasDF[,<span class="sc">-</span><span class="fu">c</span>(<span class="st">&quot;AF&quot;</span>)], eqtlAsso[,.(<span class="at">rsid=</span>snpId, pValue)],</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>), <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">&quot;.gwas&quot;</span>,<span class="st">&quot;.eqtl&quot;</span>))</span></code></pre></div>
 <p>Five retained fields are required:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>gwasEqtldata</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>gwasEqtldata</span></code></pre></div>
 <pre><code>#&gt;             rsid chrom position pValue.gwas pValue.eqtl
 #&gt;    1: rs10000104  chr4 10190142      0.2830   0.4986640
 #&gt;    2: rs10000248  chr4 10720872      0.0359   0.6089460
@@ -355,42 +399,43 @@ div.csl-indent {
 #&gt; 8010:  rs9999669  chr4 10852509      0.2470   0.0441530
 #&gt; 8011:  rs9999767  chr4 10127270      0.8730   0.1902930</code></pre>
 <p>Visualization of p-value distribution and comparison of the signals of GWAS and eQTL:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCompare</span>(gwasEqtldata[,.(rsid, pValue.eqtl)], </span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>                        gwasEqtldata[,.(rsid, pValue.gwas)], <span class="at">legend_position =</span> <span class="st">&quot;bottomright&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCompare</span>(gwasEqtldata[,.(rsid, pValue.eqtl)], </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                        gwasEqtldata[,.(rsid, pValue.gwas)], <span class="at">legend_position =</span> <span class="st">&quot;bottomright&quot;</span>)</span></code></pre></div>
 <p>Locuszoom plot of GWAS signals:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.gwas)], <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.gwas)], <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
 <p>Locuszoom plot of eQTL signals:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.eqtl)], <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.eqtl)], <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
 <p>We can also combine locuscompare and locuszoom plot using function <code>xQTLvisual_locusCombine</code>:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCombine</span>(gwasEqtldata[,<span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>,<span class="st">&quot;chrom&quot;</span>, <span class="st">&quot;position&quot;</span>, <span class="st">&quot;pValue.gwas&quot;</span>, <span class="st">&quot;pValue.eqtl&quot;</span>)])</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCombine</span>(gwasEqtldata[,<span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>,<span class="st">&quot;chrom&quot;</span>, <span class="st">&quot;position&quot;</span>, <span class="st">&quot;pValue.gwas&quot;</span>, <span class="st">&quot;pValue.eqtl&quot;</span>)])</span></code></pre></div>
 <p>From the above figures, we can see that the SNP <code>rs11568818</code> is potential causal variant, and we can use a violin plot to show the normalized effect size of it:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_eqtlExp</span>(<span class="st">&quot;rs11568818&quot;</span>, <span class="st">&quot;MMP7&quot;</span>, <span class="at">tissueSiteDetail =</span> tissueSiteDetail)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_eqtlExp</span>(<span class="st">&quot;rs11568818&quot;</span>, <span class="st">&quot;MMP7&quot;</span>, <span class="at">tissueSiteDetail =</span> tissueSiteDetail)</span></code></pre></div>
 </div>
 <div id="extension-integrative-analysis-with-external-packages-or-tools" class="section level2">
 <h2>Extension: Integrative analysis with external packages or tools</h2>
-<p>To gain insight into the function of trait genes with high PPH4, and explore the potential regulatory mechanism of the prostate cancer, we can conduct exploratory analysis, like co-expression analysis, and gene ontology enrichment analyses.</p>
-<p>First we download expression profiles of the genes with higher value of PPH4 (&gt;0.75) in prostate.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>expMat <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_exp</span>(outGenes<span class="sc">$</span>gencodeId, <span class="at">tissueSiteDetail=</span>tissueSiteDetail, <span class="at">toSummarizedExperiment =</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<p>To gain insight into the function of trait genes with higher PPH4, and explore the potential regulatory mechanism of the prostate cancer, we can conduct exploratory analysis, like co-expression analysis, and gene ontology enrichment analyses.</p>
+<p>First we download expression profiles of the genes with higher value of PPH4 (&gt;0.75) &amp; hypr_posterior (&gt;0.5) in prostate.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>expMat <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_exp</span>(outGenes<span class="sc">$</span>gencodeId, <span class="at">tissueSiteDetail=</span>tissueSiteDetail, <span class="at">toSummarizedExperiment =</span><span class="cn">FALSE</span>)</span></code></pre></div>
 <p>Pearson coefficient can be calculated with the expression matrix for each gene:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>corDT <span class="ot">&lt;-</span> <span class="fu">cor</span>(<span class="fu">t</span>(expMat[,<span class="sc">-</span><span class="dv">1</span><span class="sc">:-</span><span class="dv">6</span>]))</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(corDT) <span class="ot">&lt;-</span> outGenes<span class="sc">$</span>geneSymbol</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(corDT) <span class="ot">&lt;-</span> outGenes<span class="sc">$</span>geneSymbol</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>corDT <span class="ot">&lt;-</span> <span class="fu">cor</span>(<span class="fu">t</span>(expMat[,<span class="sc">-</span><span class="dv">1</span><span class="sc">:-</span><span class="dv">7</span>]))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(corDT) <span class="ot">&lt;-</span> outGenes<span class="sc">$</span>geneSymbol</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(corDT) <span class="ot">&lt;-</span> outGenes<span class="sc">$</span>geneSymbol</span></code></pre></div>
 <p>R package <code>corrplot</code> is used to display this correlation matrix:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot) </span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(corDT, <span class="at">method=</span><span class="st">&quot;color&quot;</span>,  </span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">type=</span><span class="st">&quot;upper&quot;</span>,    </span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">order =</span> <span class="st">&quot;hclust&quot;</span>,</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">addCoef.col =</span> <span class="st">&quot;#ff0099&quot;</span>, </span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">number.cex =</span> <span class="fl">0.7</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot) </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(corDT, <span class="at">method=</span><span class="st">&quot;color&quot;</span>,  </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">type=</span><span class="st">&quot;upper&quot;</span>,    </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">order =</span> <span class="st">&quot;hclust&quot;</span>,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">addCoef.col =</span> <span class="st">&quot;#ff0099&quot;</span>, </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">number.cex =</span> <span class="fl">0.7</span>) </span></code></pre></div>
 <p>R package <code>clusterProfiler</code> is used for gene functional annotation:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(clusterProfiler)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>ego <span class="ot">&lt;-</span> <span class="fu">enrichGO</span>(<span class="at">gene =</span> <span class="fu">as.character</span>(outGenes<span class="sc">$</span>entrezGeneId),</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">OrgDb =</span> org.Hs.eg.db,</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">ont=</span> <span class="st">&quot;BP&quot;</span>,</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">pAdjustMethod =</span><span class="st">&quot;none&quot;</span>,</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">readable =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dotplot</span>(ego, <span class="at">showCategory=</span><span class="dv">15</span>)</span></code></pre></div>
-<p>Viral-related GO terms are enriched in above analysis, including <code>&quot;viral life cycle&quot;</code>, <code>&quot;positive regulation of viral life cycle&quot;</code> and <code>&quot;positive regulation of viral process&quot;</code>. Previous studies have highlighten the role of viral infections in initiation or progression of prostate cancer. The presence of viruses such as human papillomavirus (HPV), herpesviruses including cytomegalovirus (CMV), human herpes simplex virus type 2 (HSV2), human herpesvirus type 8 (HHV8) and Epstein-Barr virus (EBV) can infect the prostate <span class="citation">(<a href="#ref-abidi2018" role="doc-biblioref">Abidi et al. 2018</a>)</span>. However, the causal variants’ genetic effects on the phenotype and whether the trait genes has a direct association with prostate carcinogenesis has not yet been established.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(clusterProfiler)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>ego <span class="ot">&lt;-</span> <span class="fu">enrichGO</span>(<span class="at">gene =</span> <span class="fu">as.character</span>(outGenes<span class="sc">$</span>entrezGeneId),</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">OrgDb =</span> org.Hs.eg.db,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">ont=</span> <span class="st">&quot;BP&quot;</span>,</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">pAdjustMethod =</span><span class="st">&quot;none&quot;</span>,</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">readable =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="fu">dotplot</span>(ego, <span class="at">showCategory=</span><span class="dv">15</span>)</span></code></pre></div>
+<p>Viral-related GO terms are enriched in above analysis, including <code>&quot;viral life cycle&quot;</code>, <code>&quot;positive regulation of viral life cycle&quot;</code> and <code>&quot;positive regulation of viral process&quot;</code>. Previous studies have highlighted the role of viral infections in initiation or progression of prostate cancer. The presence of viruses such as human papillomavirus (HPV), herpesviruses including cytomegalovirus (CMV), human herpes simplex virus type 2 (HSV2), human herpesvirus type 8 (HHV8) and Epstein-Barr virus (EBV) can infect the prostate <span class="citation">(<a href="#ref-abidi2018" role="doc-biblioref">Abidi et al. 2018</a>)</span>. However, the causal variants’ genetic effects on the phenotype and whether the trait genes has a direct association with prostate carcinogenesis has not yet been established.</p>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>

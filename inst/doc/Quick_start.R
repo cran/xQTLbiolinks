@@ -44,7 +44,7 @@ output$coloc_Out_summary
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  outputs <- rbindlist(lapply( unique(traitsAll$gencodeId), function(x){ # using gencode ID.
-#             xQTLanalyze_coloc(gwasDF, x, tissueSiteDetail=tissueSiteDetail)$coloc_Out_summary }))
+#             xQTLanalyze_coloc(gwasDF, x, tissueSiteDetail=tissueSiteDetail, method = "Both")$colocOut }))
 
 ## ---- eval=TRUE---------------------------------------------------------------
 outputs
@@ -57,7 +57,7 @@ outputs
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  xQTLvisual_locusCompare(gwasEqtldata[,.(rsid, pValue.eqtl)],
-#                         gwasEqtldata[,.(rsid, pValue.gwas)], legend_position = "bottomright")
+#                          gwasEqtldata[,.(rsid, pValue.gwas)], legend_position = "bottomright")
 
 ## ---- compare.png, fig.align = 'center', out.width = "50%", echo=FALSE--------
 # knitr::include_graphics("images/quick_start/compare.png")

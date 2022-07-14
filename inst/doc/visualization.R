@@ -94,3 +94,11 @@ knitr::opts_chunk$set(
 ## ---- xQTLvisual_locusCombine.png, fig.align = 'center', out.width = "90%", fig.cap = "", echo=FALSE----
 # knitr::include_graphics("images/visualization/xQTLvisual_locusCombine.png")
 
+## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
+#  speDT <- xQTLanalyze_qtlSpecificity(gene="FLOT1", variantName="rs3130356", study="")
+#  xQTLvisual_qtlSpecificity(speDT, outPlot = "heatmap")
+#  xQTLvisual_qtlSpecificity(speDT, outPlot = "regression")
+
+## ---- xQTL_visual_eQTLspecificity.png, fig.align = 'center', out.width = "90%", fig.cap = "", echo=FALSE----
+# knitr::include_graphics("images/visualization/eQTLspecificity.png")
+

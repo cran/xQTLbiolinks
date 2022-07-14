@@ -185,6 +185,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCompare</span>( eqtlDF, gwasDF, <span class="at">legend_position=</span><span class="st">&quot;topleft&quot;</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>gwasEqtldata <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;http://raw.githubusercontent.com/dingruofan/exampleData/master/gwas/AD/gwasEqtldata.txt&quot;</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCombine</span>(gwasEqtldata, <span class="at">highlightSnp=</span><span class="st">&quot;rs13120565&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>speDT <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_qtlSpecificity</span>(<span class="at">gene=</span><span class="st">&quot;FLOT1&quot;</span>, <span class="at">variantName=</span><span class="st">&quot;rs3130356&quot;</span>, <span class="at">study=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_qtlSpecificity</span>(speDT, <span class="at">outPlot =</span> <span class="st">&quot;heatmap&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_qtlSpecificity</span>(speDT, <span class="at">outPlot =</span> <span class="st">&quot;regression&quot;</span>)</span></code></pre></div>
 
 
 

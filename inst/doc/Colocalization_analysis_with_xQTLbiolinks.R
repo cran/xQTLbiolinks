@@ -13,7 +13,7 @@ library(stringr)
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  gwasDF <- fread("29892016-GCST006085-EFO_0001663-build37.f.tsv.gz")
 #  # extract columns.
-#  gwasDF<- gwasDF[str_detect(variant_id, "^rs"),.(rsid=variant_id, chrom=chromosome, position= base_pair_location, pValue=p_value, AF=effect_allele_frequency)]
+#  gwasDF<- gwasDF[str_detect(variant_id, "^rs"),.(rsid=variant_id, chrom=chromosome, position= base_pair_location, pValue=p_value, AF=effect_allele_frequency, beta, se= standard_error)]
 #  # tissue:
 #  tissueSiteDetail="Prostate"
 
@@ -46,12 +46,12 @@ head(example_Coloc_traitsAll)
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  genesAll<- unique(traitsAll$gencodeId)
 #  colocResultAll <- data.table()
-#  #
+#  # 162 575 error
 #  for(i in 1:length(genesAll)){
 #    colocResult <- xQTLanalyze_coloc(gwasDF,
-#                                     genomeVersion = "grch37",
-#                                     genesAll[i], tissueSiteDetail=tissueSiteDetail)$coloc_Out_summary
-#    if(!is.null(colocResult)){ colocResultAll <- rbind(colocResultAll, colocResult)}
+#                                     genomeVersion = "grch37", method="Both",
+#                                     genesAll[i], tissueSiteDetail=tissueSiteDetail)
+#    if(!is.null(colocResult)){ colocResultAll <- rbind(colocResultAll, colocResult$colocOut)}
 #    message(format(Sys.time(), "== %Y-%b-%d %H:%M:%S ")," == Id:",i,"/",length(genesAll)," == Gene:",genesAll[i])
 #  }
 
@@ -62,13 +62,26 @@ colocResultAll <- example_Coloc_colocResultAll
 head(colocResultAll)
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
+#  library(VennDiagram)
+#  T <- venn.diagram( list(colocOut = colocResultAll[PP.H4.abf>=0.75]$traitGene,
+#                     hyprcolocOut = colocResultAll[hypr_posterior>=0.5]$traitGene),
+#                     filename = NULL,lwd=1,lty=1, width = 8000, height = 10000,
+#                     fill=c('#ff7a45','#597ef7'), col=c('red','blue'), cat.col=c('red','blue'),
+#                     main.cex = 0.45, sub.cex= 0.1,
+#                     disable.logging = TRUE)
+#  grid.draw(T)
+
+## ---- venn_coloc_hyprcoloc, fig.align = 'center', out.width = "30%", echo=FALSE----
+# knitr::include_graphics("images/prostate/venn_coloc_hyprcoloc.png", error = FALSE)
+
+## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  colocResultAll <- fread("https://raw.githubusercontent.com/dingruofan/exampleData/master/colocResultAll.txt")
 
 ## ---- message=FALSE, warning=FALSE, include=FALSE-----------------------------
 colocResultsig <- example_Coloc_colocResultsig
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  colocResultsig <- colocResultAll[PP.H4.abf>0.75][order(-PP.H4.abf)]
+#  colocResultsig <- colocResultAll[PP.H4.abf>0.75 & hypr_posterior>0.5][order(-PP.H4.abf)]
 
 ## ---- eval=TRUE---------------------------------------------------------------
 head(colocResultsig)
@@ -77,7 +90,7 @@ head(colocResultsig)
 outGenes <- xQTLquery_gene(colocResultsig$traitGene)
 
 ## ---- eval=TRUE---------------------------------------------------------------
-outGenes <- merge(colocResultsig[,.(gencodeId= traitGene, PP.H4.abf)], 
+outGenes <- merge(colocResultsig[,.(gencodeId= traitGene, PP.H4.abf, candidate_snp, SNP.PP.H4, hypr_posterior)], 
                   outGenes[,.(geneSymbol, gencodeId, entrezGeneId, geneType)], by="gencodeId", sort=FALSE)
 outGenes <- outGenes[geneType =="protein coding"]
 
@@ -154,7 +167,7 @@ gwasEqtldata
 #  expMat <- xQTLdownload_exp(outGenes$gencodeId, tissueSiteDetail=tissueSiteDetail, toSummarizedExperiment =FALSE)
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  corDT <- cor(t(expMat[,-1:-6]))
+#  corDT <- cor(t(expMat[,-1:-7]))
 #  colnames(corDT) <- outGenes$geneSymbol
 #  rownames(corDT) <- outGenes$geneSymbol
 
@@ -171,6 +184,7 @@ gwasEqtldata
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  library(clusterProfiler)
+#  library(org.Hs.eg.db)
 #  ego <- enrichGO(gene = as.character(outGenes$entrezGeneId),
 #                  OrgDb = org.Hs.eg.db,
 #                  ont= "BP",
