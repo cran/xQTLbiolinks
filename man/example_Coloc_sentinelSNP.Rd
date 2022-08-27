@@ -6,15 +6,6 @@
 \title{data for vignette}
 \format{
 A Data.table
-\describe{
-\item{rsid}{A character vector}
-\item{chr}{A character vector}
-\item{position}{A integer vector}
-\item{pValue}{A numeric vector}
-\item{maf}{A numeric vector}
-\item{beta}{A numeric vector}
-\item{se}{A numeric vector}
-}
 }
 \source{
 xQTLanalyze_getSentinelSnp

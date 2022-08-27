@@ -6,10 +6,6 @@
 \title{Gene types in GTEx V8 and V7}
 \format{
 A list
-\describe{
-\item{V26}{A character vector}
-\item{V19}{A character vector}
-}
 }
 \source{
 \url{https://gtexportal.org/home/}

@@ -6,11 +6,6 @@
 \title{data for vignette}
 \format{
 A Data.table
-\describe{
-\item{study_accession}{A character vector}
-\item{tissue_label}{A character vector}
-\item{tissue}{A character vector}
-}
 }
 \source{
 \url{https://www.ebi.ac.uk/eqtl/api-docs/#accessing-the-api} or EBIquery_allTerm

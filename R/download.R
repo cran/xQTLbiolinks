@@ -267,8 +267,6 @@ xQTLdownload_exp <- function(genes="", geneType="auto", tissueSiteDetail="Liver"
 #' xQTLdownload_eqtlSig(genes="ATAD3B")
 #' xQTLdownload_eqtlSig(genes=c("TP53", "SLC35E2B"), tissueSiteDetail= "Brain - Cerebellum")
 #' xQTLdownload_eqtlSig(genes="ENSG00000141510.16", datasetId="gtex_v8")
-#' xQTLdownload_eqtlSig(genes="ENSG00000141510.11", datasetId="gtex_v7",
-#'                      tissueSiteDetail="Thyroid" )
 #'
 #' # Download eQTL info for a variant-gene pair:
 #' xQTLdownload_eqtlSig(variantName="rs1641513", genes="TP53", datasetId="gtex_v8")
@@ -423,8 +421,7 @@ xQTLdownload_eqtlSig <- function(variantName="", genes="", variantType="auto", g
 #' eqtl_v8 <- xQTLdownload_eqtl(gene="ENSG00000141510", datasetId="gtex_v8")
 #'
 #' # In a specific tissue:
-#' xQTLdownload_eqtl(gene="ENSG00000141510.11", geneType="gencodeId",
-#'                   datasetId="gtex_v7", tissueSiteDetail="Thyroid" )
+#' xQTLdownload_eqtl(gene="ENSG00000141510.16", geneType="gencodeId", tissueSiteDetail="Thyroid" )
 #'
 #' # Download eQTL info with a variant-gene pair:
 #' xQTLdownload_eqtl(variantName="rs1641513",gene="TP53", datasetId="gtex_v8")
@@ -534,7 +531,7 @@ xQTLdownload_eqtl <- function(variantName="", gene="", variantType="auto", geneT
     }
   }
 
-  # url1 <- "https://gtexportal.org/rest/v1/association/metasoft?gencodeId=ENSG00000141510.11&datasetId=gtex_v7"
+  # url1 <- "https://gtexportal.org/rest/v1/association/metasoft?gencodeId=ENSG00000141510.16&datasetId=gtex_v8"
   message("== Querying eQTL associations from API server:")
   ########## construct url for sig association
   url1 <- paste0("https://gtexportal.org/rest/v1/association/metasoft?",
@@ -659,7 +656,7 @@ xQTLdownload_eqtlAllAsso <- function(gene="", geneType="auto", variantName="", v
   # check study-tissue:
   if( length(study) ==1 && length(tissueLabel)==1 && study!="" && tissueLabel!=""){
     if(nrow( ebi_ST[study_accession == study & tissue_label==tissueLabel])==1){
-      message("== Study [",study,"] -- Tissue label [",tissueLabel,"] corrected mapped..")
+      message("== Study [",study,"] -- Tissue label [",tissueLabel,"] correctly mapped..")
     }else{
       message("ID\tstudy\ttissueLabel")
       for(i in 1:nrow(ebi_ST)){ message(i,"\t", paste(ebi_study_tissues[i ,.(study_accession, tissue_label)], collapse = " \t ")) }
@@ -830,7 +827,22 @@ xQTLdownload_eqtlAllAsso <- function(gene="", geneType="auto", variantName="", v
   return(gtexAsooDT)
 }
 
-
+# genes <- c("MLH1", "TP53")
+# variantNames <- c("rs6767538", "rs78378222")
+# xQTLdownload_eqtlAllAssoPar <- function(genes="", geneType="auto", variantNames="", variantType="auto", tissueLabel="", study="gtex_v8", recordPerChunk=1000, withB37VariantId=FALSE, threadsN=2){
+#   if(all(genes=="") & all(variantNames=="")){
+#     stop("Genes and variants can not be null.")
+#   }
+#   geneVarGrid <- data.table::as.data.table(expand.grid(gene=genes, variantName=variantNames, stringsAsFactors =FALSE))
+#   cl <- parallel::makeCluster(threadsN)
+#   parallel::clusterExport(cl=cl, c('geneVarGrid', 'study', 'geneType', 'variantType','tissueLabel', 'study', 'recordPerChunk', 'withB37VariantId', 'xQTLdownload_eqtlAllAsso', 'ebi_study_tissues'))
+#   # parallel::clusterEvalQ(cl, {library(xQTLbiolinks)})
+#   a <- parallel::parLapply(cl, 1:nrow(geneVarGrid), function(x){
+#     eqtlAsso <- xQTLdownload_eqtlAllAsso(gene=geneVarGrid[x]$gene, geneType=geneType, variantName = geneVarGrid[x]$variantName, variantType=variantType, tissueLabel=tissueLabel, study=study,recordPerChunk=recordPerChunk, withB37VariantId=withB37VariantId)
+#     return(eqtlAsso)
+#   })
+#   parallel::stopCluster(cl)
+# }
 
 #' @title Download summary statistics of eQTL with genome position.
 #'
@@ -909,7 +921,7 @@ xQTLdownload_eqtlAllAssoPos <- function(chrom="", pos_lower=numeric(0), pos_uppe
   # check study-tissue:
   if( length(study) ==1 && length(tissueLabel)==1 && study!="" && tissueLabel!=""){
     if(nrow( ebi_ST[study_accession == study & tissue_label==tissueLabel])==1){
-      message("== Study [",study,"] -- Tissue label [",tissueLabel,"] corrected mapped..")
+      message("== Study [",study,"] -- Tissue label [",tissueLabel,"] correctly mapped..")
     }else{
       message("ID\tstudy\ttissueLabel")
       for(i in 1:nrow(ebi_ST)){ message(i,"\t", paste(ebi_study_tissues[i ,.(study_accession, tissue_label)], collapse = " \t ")) }
@@ -1471,7 +1483,6 @@ xQTLdownload_sqtlExp <- function(variantName="", phenotypeId="", variantType="au
 #' \donttest{
 #' eGeneInfo <- xQTLdownload_egene("TP53")
 #' eGeneInfo <- xQTLdownload_egene(tissueSiteDetail="Prostate", recordPerChunk=2000)
-#' eGeneInfo <- xQTLdownload_egene("DDX11", datasetId="gtex_v7",tissueSiteDetail="Artery - Tibial")
 #' }
 xQTLdownload_egene <- function(gene = "", geneType="auto", datasetId = "gtex_v8", tissueSiteDetail="", recordPerChunk=2000){
   .<-NULL

@@ -1,7 +1,6 @@
 Package: xQTLbiolinks
-Title: An R Package for Integrative Analysis of Quantitative Trait
-        Locus Data of 'GTEx'
-Version: 1.1.1
+Title: Integrative Analysis of Quantitative Trait Locus Data of 'xQTL'
+Version: 1.2.2
 Authors@R: c(
     person(given = "Ruofan", family = "Ding",        email = "dingruofan1@foxmail.com",   role  = c("aut", "cre")),
     person(given = "Xudong", family = "Zou",        email = "zouxd@szbl.ac.cn",   role  = c("aut","ctb")),
@@ -23,10 +22,9 @@ Imports: BiocGenerics, cowplot (>= 1.1.1), curl (>= 4.3.2), data.table
         3.3.6), ggrepel, ggridges, httr, IRanges, jsonlite (>= 1.7.2),
         PupillometryR, RMySQL, scales, stringr (>= 1.4.0),
         SummarizedExperiment (>= 1.4.0), utils (>= 4.0.3), viridis
-Suggests: coloc, hyprcoloc, knitr, rtracklayer, usethis
-Additional_repositories: https://dingruofan.github.io/drat
+Suggests: coloc, knitr, rtracklayer, usethis
 NeedsCompilation: no
-Packaged: 2022-07-14 08:15:47 UTC; DELL
+Packaged: 2022-08-26 02:20:42 UTC; DELL
 Author: Ruofan Ding [aut, cre],
   Xudong Zou [aut, ctb],
   Yangmei Qin [aut, ctb],
@@ -34,4 +32,4 @@ Author: Ruofan Ding [aut, cre],
   Lei Li [aut, ctb, cph]
 Maintainer: Ruofan Ding <dingruofan1@foxmail.com>
 Repository: CRAN
-Date/Publication: 2022-07-14 09:30:02 UTC
+Date/Publication: 2022-08-27 13:50:02 UTC

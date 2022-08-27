@@ -58,8 +58,4 @@ Query basic information (including name, symbol, position and description, etc. 
 geneInfo <- xQTLquery_gene("TP53")
 geneInfo <- xQTLquery_gene(c("tp53","naDK","SDF4") )
 geneInfo <- xQTLquery_gene(c("ENSG00000210195.2","ENSG00000078808"))
-
-# query gene of gencode version v19/hg19
-geneInfo <- xQTLquery_gene(c("TP53","naDK"),  gencodeVersion="v19")
-geneInfo <- xQTLquery_gene(c("ENSG00000141510.11","ENSG00000008130.11"), gencodeVersion="v19")
 }

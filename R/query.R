@@ -47,10 +47,6 @@
 #' geneInfo <- xQTLquery_gene("TP53")
 #' geneInfo <- xQTLquery_gene(c("tp53","naDK","SDF4") )
 #' geneInfo <- xQTLquery_gene(c("ENSG00000210195.2","ENSG00000078808"))
-#'
-#' # query gene of gencode version v19/hg19
-#' geneInfo <- xQTLquery_gene(c("TP53","naDK"),  gencodeVersion="v19")
-#' geneInfo <- xQTLquery_gene(c("ENSG00000141510.11","ENSG00000008130.11"), gencodeVersion="v19")
 xQTLquery_gene <- function(genes="", geneType="auto", gencodeVersion="v26", recordPerChunk=150){
   geneSymbol <- gencodeId <- entrezGeneId <- chromosome <- start <- end <- strand <- tss <- description <- cutF <- genesUpper <- NULL
   .<-NULL
@@ -1177,7 +1173,7 @@ fetchContentEbi <- function(url1, method="fromJSON", downloadMethod="auto", term
   # }
 
   embeddedList <- list()
-  # Don't append size and start.
+  # If do not append size and start.
   if( termSize ==0 ){
     urlGot <- url1
     contentGot <- fetchContent(url1 = urlGot, method =method, downloadMethod = downloadMethod)
@@ -1188,7 +1184,7 @@ fetchContentEbi <- function(url1, method="fromJSON", downloadMethod="auto", term
 
   # 这个API 有点问题，如果fetch 多个组织的结果，如果该组织剩下不足1000，就会将剩下的附加到这次fetch，导致 _links 里没有next，进而终止检索，所以再没有 next后，额外再fetch一次，如果有next则继续。
   }else if(termSize > 0){
-    for(i in 1:1000000){
+    for(i in 1:99999999){
       urlGot <- paste0(url1, ifelse(stringr::str_detect(url1,stringr::fixed("?")),"&","?"),
                        "size=",as.integer(termSize),
                        "&start=",as.integer(termStart))
@@ -1222,6 +1218,7 @@ fetchContentEbi <- function(url1, method="fromJSON", downloadMethod="auto", term
 }
 
 
+
 #' @title retrieve snps from dbSNP using coordinate.
 #'
 #' @param chrom (character) name of chromesome, including chr1-chr22, chrX, chrY.
@@ -1235,12 +1232,6 @@ fetchContentEbi <- function(url1, method="fromJSON", downloadMethod="auto", term
 #' @import curl
 #' @import jsonlite
 #' @return A data.table object.
-#' @export
-#'
-#' @examples
-#' snpInfo <- dbsnpQueryRange(chrom="chr1", startPos=1,
-#'                            endPos=50000, genomeBuild="GRCh38/hg38",
-#'                            track="snp151Common" )
 dbsnpQueryRange <- function(chrom="", startPos=-1, endPos=-1, genomeBuild="GRCh38/hg38", track="snp151Common" ){
   # url1<-"https://api.genome.ucsc.edu/getData/track?genome=hg38;track=snp151Common;chrom=chr1;start=1;end=1000000"
   # chrom="chr1"

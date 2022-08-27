@@ -6,18 +6,6 @@
 \title{data for vignette}
 \format{
 A Data.table
-\describe{
-\item{chromosome}{A character vector}
-\item{geneStart}{A integer vector}
-\item{geneEnd}{A integer vector}
-\item{geneStrand}{A character vector}
-\item{geneSymbol}{A character vector}
-\item{gencodeId}{A character vector}
-\item{rsid}{A character vector}
-\item{position}{A integer vector}
-\item{pValue}{A numeric vector}
-\item{maf}{A numeric vector}
-}
 }
 \source{
 xQTLanalyze_getTraits

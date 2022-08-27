@@ -6,13 +6,6 @@
 \title{Gene annotations (chr1-chr22).}
 \format{
 A GRanges object
-\describe{
-\item{seqnames}{character string, chromosome}
-\item{ranges}{Iranges, gene location of v26}
-\item{strand}{character string, strand}
-\item{rangesV19}{Iranges, gene location of v19}
-\item{gencodeId}{character, gencode id}
-}
 }
 \source{
 \url{https://gtexportal.org/home/}

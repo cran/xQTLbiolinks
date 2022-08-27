@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 
 ## ---- message=FALSE, warning=FALSE, include=FALSE-----------------------------
 temp1 <- tempfile(fileext=".zip")
-download.file("https://github.com/dingruofan/exampleData/raw/master/env.zip", temp1)
+download.file("http://github.com/dingruofan/exampleData/raw/master/env.zip", temp1)
 load(unz(temp1,"env.Rdata"))
 close(file(temp1))
 rm(temp1)
@@ -87,4 +87,19 @@ outputs
 
 ## ---- xQTLvisual_locusCombine.png, fig.align = 'center', out.width = "90%", echo=FALSE----
 # knitr::include_graphics("images/quick_start/xQTLvisual_locusCombine.png")
+
+## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
+#  propensityRes <- xQTLanalyze_propensity( gene="ENSG00000109684.14", variantName="rs13120565",
+#                                           tissueLabels = c("Brain - Cerebellar Hemisphere",
+#                                           "Brain - Cerebellum", "Treg memory", "Colon - Transverse",
+#                                           "CD4+ T cell", "Kidney - Cortex", "Uterus", "Esophagus - Mucosa", "LCL") )
+
+## ---- eval=TRUE---------------------------------------------------------------
+propensityRes$tissuePropensity
+
+## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
+#  xQTLvisual_qtlPropensity(propensityRes)
+
+## ---- propensity.png, fig.align = 'center', out.width = "70%", echo=FALSE-----
+# knitr::include_graphics("images/quick_start/propensity.png")
 

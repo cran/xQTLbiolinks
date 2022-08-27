@@ -6,15 +6,6 @@
 \title{data for vignette}
 \format{
 A Data.table
-\describe{
-\item{rsid}{A character vector}
-\item{chr}{A character vector}
-\item{position}{A integer vector}
-\item{pValue}{A numeric vector}
-\item{maf}{A numeric vector}
-\item{beta}{A numeric vector}
-\item{se}{A numeric vector}
-}
 }
 \source{
 \url{http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST006001-GCST007000/GCST006085/harmonised/29892016-GCST006085-EFO_0001663-build37.f.tsv.gz}

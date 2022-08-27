@@ -6,13 +6,6 @@
 \title{data for vignette}
 \format{
 A Data.table
-\describe{
-\item{traitGene}{A character vector}
-\item{posterior_prob}{A numeric vector}
-\item{regional_prob}{A numeric vector}
-\item{candidate_snp}{A character vector}
-\item{posterior_explained_by_snp}{A numeric vector}
-}
 }
 \source{
 xQTLanalyze_coloc

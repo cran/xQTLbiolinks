@@ -95,10 +95,9 @@ knitr::opts_chunk$set(
 # knitr::include_graphics("images/visualization/xQTLvisual_locusCombine.png")
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  speDT <- xQTLanalyze_qtlSpecificity(gene="FLOT1", variantName="rs3130356", study="")
-#  xQTLvisual_qtlSpecificity(speDT, outPlot = "heatmap")
-#  xQTLvisual_qtlSpecificity(speDT, outPlot = "regression")
+#  propensityRes <- xQTLanalyze_propensity( gene="MMP7", variantName="rs11568818", study="TwinsUK")
+#  xQTLvisual_qtlPropensity(propensityRes)
 
-## ---- xQTL_visual_eQTLspecificity.png, fig.align = 'center', out.width = "90%", fig.cap = "", echo=FALSE----
+## ---- xQTL_visual_eQTLspecificity.png, fig.align = 'center', out.width = "70%", fig.cap = "", echo=FALSE----
 # knitr::include_graphics("images/visualization/eQTLspecificity.png")
 
