@@ -432,8 +432,6 @@ createGencodeGeneInfoAll <- function(){
 # usethis::use_package("DBI", min_version = "1.1.1") # in RMySQL
 # usethis::use_package("PupillometryR", min_version = "0.0.4")
 # usethis::use_package("ggpubr", min_version = "0.4.0")
-# usethis::use_package("ggridges", min_version = "0.5.3")
-# usethis::use_package("viridis", min_version = "0.6.2")
 # usethis::use_package("GenomeInfoDb", min_version = "1.24.2") # in GenomicRanges
 # usethis::use_package("IRanges", min_version = "2.22.2") # in GenomicRanges
 # usethis::use_package("ggrepel", min_version = "0.9.1") # in ggpubr
@@ -448,10 +446,8 @@ createGencodeGeneInfoAll <- function(){
 # usethis::use_package("utils", min_version = "4.0.3")
 # usethis::use_package("SummarizedExperiment", min_version = "1.4.0")
 # usethis::use_package("ggplot2", min_version="3.3.6")
-# usethis::use_package("httr")
 # usethis::use_package("RMySQL")
 # usethis::use_package("DBI") # in RMySQL
-# usethis::use_package("PupillometryR")
 # usethis::use_package("ggridges")
 # usethis::use_package("viridis")
 # usethis::use_package("GenomeInfoDb") # in GenomicRanges
@@ -460,7 +456,10 @@ createGencodeGeneInfoAll <- function(){
 # usethis::use_package("GenomicRanges") # in SummarizedExperiment
 # usethis::use_package("BiocGenerics")
 # usethis::use_package("cowplot", min_version="1.1.1")
-# usethis::use_package("scales")
+# usethis::use_package("GenomicFeatures")
+# usethis::use_package("VariantAnnotation")
+# usethis::use_package("TxDb.Hsapiens.UCSC.hg38.knownGene")
+# usethis::use_package("SummarizedExperiment")
 
 
 #
@@ -470,8 +469,14 @@ createGencodeGeneInfoAll <- function(){
 # usethis::use_package("rtracklayer",type="Suggests")
 # usethis::use_package("coloc",type="Suggests")
 # usethis::use_package("hyprcoloc",type="Suggests")
+# usethis::use_package("PupillometryR")
+# usethis::use_package("ggridges", type="Suggests")
+# usethis::use_package("viridis", type="Suggests")
+
 
 
 # usethis::use_package("crayon", min_version = "1.4.1") # message 字体：
 # usethis::use_package("ggeextra", min_version = "1.4.1") # message 字体：
 # usethis::use_package("rlang", min_version = "0.4.11", type="Suggests") # in ggpubr
+# usethis::use_package("httr")
+# usethis::use_package("scales")

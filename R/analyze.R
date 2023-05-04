@@ -99,6 +99,7 @@ xQTLanalyze_getSentinelSnp <- function(gwasDF, pValueThreshold=5e-8, centerRange
   message("== Detecting sentinel SNPs... ")
   # pValue filter:
   gwasDFsub <- gwasDF[pValue<pValueThreshold, ]
+  gwasDFsub <- gwasDFsub[chr %in% paste0("chr", 1:22)]
   chrAll <- unique(gwasDFsub$chr)
   chrAll <- chrAll[order(as.numeric(str_remove(chrAll,"chr")))]
   sentinelSnpDF <- data.table()
@@ -126,6 +127,8 @@ xQTLanalyze_getSentinelSnp <- function(gwasDF, pValueThreshold=5e-8, centerRange
 #' @param tissueSiteDetail (character) details of tissues in GTEx can be listed using `tissueSiteDetailGTExv8` or `tissueSiteDetailGTExv7`
 #' @param genomeVersion "grch38" or "grch37". Default: "grch38"
 #' @param grch37To38 TRUE or FALSE, we recommend converting grch37 to grch38, or using a input file of grch38 directly. Package `rtracklayer` is required.
+#' @param overlapWithEGene TRUE(default) of FALSE. take the intersection with eGenes, egene data.frame will be automatically download from GTEx, or can be provided by the parameter `egeneDF` specified the data.frame of one column of genecode ID.  Default:TRUE
+#' @param egeneDF A data.table object of one column of gencode ID. requiring overlapWithEGene is TRUE.
 #' @import data.table
 #' @import stringr
 #' @importFrom GenomicRanges GRanges
@@ -136,21 +139,28 @@ xQTLanalyze_getSentinelSnp <- function(gwasDF, pValueThreshold=5e-8, centerRange
 #'
 #' @examples
 #' \donttest{
+#' # without a customized egene file,
 #' URL1<-"https://gitee.com/stronghoney/exampleData/raw/master/gwas/GLGC_CG0052/sentinelSnpDF.txt"
 #' sentinelSnpDF <- data.table::fread(URL1)
-#' traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF,detectRange=1e4,"Brain - Cerebellum",
+#' traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
 #'                                    genomeVersion="grch37", grch37To38=TRUE)
+#' # with a egene file:
+#' egeneFile <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/egeneDF.txt"
+#' egeneDF <- data.table::fread(egeneFile)
+#' traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
+#'                                    genomeVersion="grch37", grch37To38=TRUE, egeneDF=egeneDF)
 #' }
-xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDetail="", genomeVersion="grch38", grch37To38=FALSE){
+xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDetail="", genomeVersion="grch38", grch37To38=FALSE, overlapWithEGene=TRUE, egeneDF=NULL){
   rsid <- maf <- strand <- pValue <- chr <- position <- chromosome <- NULL
   . <-genes <- geneSymbol <- gencodeId <- geneType <- description<- NULL
 
   data.table::setDT(sentinelSnpDF)
 
-
-  if( length(tissueSiteDetail)!=1 | tissueSiteDetail=="" | !(tissueSiteDetail %in% tissueSiteDetailGTExv8$tissueSiteDetail) ){
-    stop("== \"tissueSiteDetail\" can not be null. Please choose the tissue from tissue list of tissueSiteDetailGTExv8")
-  }
+  # if(overlapWithEGene){
+  #   if( length(tissueSiteDetail)!=1 | tissueSiteDetail=="" | !(tissueSiteDetail %in% tissueSiteDetailGTExv8$tissueSiteDetail) ){
+  #     stop("== \"tissueSiteDetail\" can not be null. Please choose the tissue from tissue list of tissueSiteDetailGTExv8")
+  #   }
+  # }
 
   # (未做) 由于下一步的 xQTLdownload_eqtlPost 函数只能 query 基于 hg38(v26) 的突变 1e6 bp附近的基因，所以如果输入的GWAS是 hg19 的突变坐标，需要进行转换为38，然后再进行下一步 eqtl sentinel snp filter.
   # 由于从 EBI category 里获得的是 hg38(v26) 的信息，所以如果这一步是 hg19 的1e6范围内，则在 hg38里就会未必，所以需要这一步，如果是hg19，则对突变的坐标进行变换：
@@ -249,21 +259,29 @@ xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDeta
     message(i," - ", chrAll[i]," - [",nrow(Traits),"] gene-SNP pairs of [",length(unique(Traits$gencodeId)),"] genes and [",length(unique(Traits$rsid)),"] SNPs." )
     rm(sentinelSnpChrom, geneInfoChrom, Traits)
   }
-  message("== Fetching [", length(unique(traitsAll$gencodeId)),"] genes' information from the GTEx.")
-  geneAnnot <- xQTLquery_gene(unique(traitsAll$gencodeId), geneType = "gencodeId", gencodeVersion = genecodeVersion)
-  if( datasetId=="gtex_v7" ){
-    geneAnnot$chromosome <- paste0("chr",geneAnnot$chromosome)
-  }
-  if( exists("geneAnnot") && !is.null(geneAnnot) && nrow(geneAnnot)>0 ){
-    traitsAll <- merge(geneAnnot[,.(genes, geneSymbol,gencodeId, geneType, description, chromosome, start,end ,strand)],traitsAll, by.x="genes",by.y="gencodeId",  all.x=TRUE)[,-c("genes")]
-    traitsAll <- traitsAll[,.( chromosome, geneStart=start, geneEnd=end, geneStrand=strand, geneSymbol, gencodeId, rsid, position, pValue, maf )][order(as.numeric(str_remove(chromosome, "chr")), pValue, position)]
-    message("== Totally, [",nrow(traitsAll), "] associations between [",length(unique(traitsAll$gencodeId)),"] traits genes and [",length(unique(traitsAll$rsid)),"] SNPs are detected." )
-  }
+  message("== Fetching [", length(unique(traitsAll$gencodeId)),"] genes' information from the GTEx...")
+  # geneAnnot <- xQTLquery_gene(unique(traitsAll$gencodeId), geneType = "gencodeId")
+  # if( datasetId=="gtex_v7" ){
+  #   geneAnnot$chromosome <- paste0("chr",geneAnnot$chromosome)
+  # }
+  # if( exists("geneAnnot") && !is.null(geneAnnot) && nrow(geneAnnot)>0 ){
+  #   traitsAll <- merge(geneAnnot[,.(genes, geneSymbol,gencodeId, geneType, description, chromosome, start,end ,strand)],traitsAll, by.x="genes",by.y="gencodeId",  all.x=TRUE)[,-c("genes")]
+  #   traitsAll <- traitsAll[,.( chromosome, geneStart=start, geneEnd=end, geneStrand=strand, geneSymbol, gencodeId, rsid, position, pValue, maf )][order(as.numeric(str_remove(chromosome, "chr")), pValue, position)]
+  #   message("== Totally, [",nrow(traitsAll), "] associations between [",length(unique(traitsAll$gencodeId)),"] traits genes and [",length(unique(traitsAll$rsid)),"] SNPs are detected." )
+  # }
 
   # Get the overlap with the eGgenes:
-  egeneDF <- xQTLdownload_egene(tissueSiteDetail = tissueSiteDetail) #11240
-  traitsAll <- traitsAll[gencodeId %in% egeneDF$gencodeId]
-  message("== After taking the intersection with egenes, [",nrow(traitsAll), "] associations between [",length(unique(traitsAll$gencodeId)),"] traits genes and [",length(unique(traitsAll$rsid)),"] SNPs are detected." )
+  if(overlapWithEGene & is.null(egeneDF)){
+    egeneDF <- xQTLdownload_egene(tissueSiteDetail = tissueSiteDetail) #11240
+    traitsAll <- traitsAll[gencodeId %in% egeneDF$gencodeId | gencodeId %in% unlist(lapply(egeneDF$gencodeId, function(x){ str_split(x, fixed("."))[[1]][1] }))]
+    message("== After taking the intersection with egenes, [",nrow(traitsAll), "] associations between [",length(unique(traitsAll$gencodeId)),"] traits genes and [",length(unique(traitsAll$rsid)),"] SNPs are detected." )
+  }else if(overlapWithEGene & !(is.null(egeneDF))){
+    egeneDF <- egeneDF[,1]
+    names(egeneDF) <- "gencodeId"
+    traitsAll <- traitsAll[gencodeId %in% egeneDF$gencodeId | gencodeId %in% unlist(lapply(egeneDF$gencodeId, function(x){ str_split(x, fixed("."))[[1]][1] }))]
+    message("== ",nrow(egeneDF), " eGenes are provided...")
+    message("   After taking the intersection with egenes, [",nrow(traitsAll), "] associations between [",length(unique(traitsAll$gencodeId)),"] traits genes and [",length(unique(traitsAll$rsid)),"] SNPs are detected." )
+  }
 
   return(traitsAll)
 }
@@ -281,7 +299,7 @@ xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDeta
 #' @param population Supported population is consistent with the LDlink, which can be listed using function "LDlinkR::list_pop()"
 #' @param gwasSampleNum Sample number of GWAS dataset. Default:50000.
 #' @param token LDlink provided user token, default = NULL, register for token at https://ldlink.nci.nih.gov/?tab=apiaccess
-#' @param method (character) options: "coloc"(default) or "hyprcoloc" (need a highe version).
+#' @param method (character) options: "coloc"(default) or "hyprcoloc". Package `coloc` or `hyprcoloc` is required.
 #' @param bb.alg For `hyprcoloc`, branch and bound algorithm: TRUE, employ BB algorithm; FALSE, do not. Default: FALSE.
 #'
 #' @return A list of coloc result and details.
@@ -295,6 +313,7 @@ xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDeta
 #' }
 xQTLanalyze_coloc <- function(gwasDF, traitGene, geneType="auto", genomeVersion="grch38", tissueSiteDetail="", study="gtex_v8", mafThreshold=0.01, population="EUR", gwasSampleNum=50000, method="coloc", token="9246d2db7917", bb.alg=FALSE){
   rsid <- chr <- position <- se <- pValue <- snpId <- maf <- pos <- i <- variantId <- se.eqtl <- se.gwas <-SNP.PP.H4 <- beta.eqtl <- beta.gwas <- posterior_prob <- regional_prob <-candidate_snp <- posterior_explained_by_snp  <- NULL
+  qtl_group <- NULL
   . <- NULL
 
   # tissueSiteDetail="Brain - Cortex"
@@ -327,6 +346,8 @@ xQTLanalyze_coloc <- function(gwasDF, traitGene, geneType="auto", genomeVersion=
     message(" = None eQTL associations obtained of gene [",traitGene,"], please change the gene name or ENSEMBLE ID.")
     return(NULL)
   }
+  # 如果有有多个 qtl_group, 只保留第一个。
+  eqtlInfo <- eqtlInfo[ qtl_group ==eqtlInfo[1,]$qtl_group,]
   eqtlInfo[,position:=.(pos)]
 
   # chromosome:
@@ -425,318 +446,109 @@ xQTLanalyze_coloc <- function(gwasDF, traitGene, geneType="auto", genomeVersion=
     # coloc_Out_summary$pearsonCoor <- cor(-log(gwasEqtlInfo$pValue.gwas, 10),-log(gwasEqtlInfo$pValue.eqtl, 10), method = "pearson")
 
     return(list(coloc_Out_summary=coloc_Out_summary, gwasEqtlInfo=gwasEqtlInfo))
-  }
-}
-
-
-#' @title Perform tissue-specific expression analysis for genes.
-#' @param genes A charater vector or a string of gene symbol, gencode id (versioned), or a charater string of gene type.
-#' @param geneType (character) options: "auto","geneSymbol" or "gencodeId". Default: "auto".
-#' @param method "SPM" or "entropy"
-#' @param datasetId (character) options: "gtex_v8" (default), "gtex_v7".
-#'
-#' @return A data.table object.
-#' @export
-#'
-#' @examples
-#' TSgene <- xQTLanalyze_TSExp(extractGeneInfo(gencodeGeneInfoAllGranges)$gencodeId[1:5])
-xQTLanalyze_TSExp <- function(genes, geneType="auto", method="SPM", datasetId="gtex_v8"){
-  gencodeId <- geneSymbol <-.<-NULL
-  if(datasetId == "gtex_v8"){
-    genomeVersion="v26"
-    tissueSiteDetail <- copy(tissueSiteDetailGTExv8)
-  }else if(datasetId == "gtex_v7"){
-    genomeVersion="v19"
-    tissueSiteDetail <- copy(tissueSiteDetailGTExv7)
-  }
-  geneExp <- xQTLdownload_geneMedExp(genes=genes,  geneType=geneType, datasetId = datasetId)
-  geneExpCast <- dcast(geneExp[,.(gencodeId, geneSymbol,geneType, median, tissueSiteDetail)], gencodeId+geneSymbol+geneType~tissueSiteDetail, value.var = "median")
-  geneExpCastMat <- geneExpCast[, -c("gencodeId", "geneSymbol", "geneType")]
-
-  if( method=="SPM"){
-    DPMlist <- lapply( 1:nrow(geneExpCastMat), function(x){
-      x <- unlist(geneExpCastMat[x,])
-      x<- as.numeric(x)
-      if(all(x==0)){
-        return(list(SPM=x, DPM=NA ))
-      }else{
-        SPMi <- unlist(lapply(1:length(x), function(xx){
-          xi <- rep(0, length(x))
-          xi[xx] <- x[xx]
-          if(all(xi==0)){
-            cosX = 0
-          }else{
-            # cosX <- xi%*%x/( length(xi)*length(x) )
-            cosX <- crossprod(x, xi)/sqrt(crossprod(x) * crossprod(xi))
-          }
-          return(cosX)
-        }))
-        return(list(SPM=SPMi, DPM=sd(SPMi)*sqrt(length(x)) ))
-      }
-    })
-    SPMmat <- as.data.table(t(as.data.table( lapply(DPMlist, function(x){ x[[1]] }))))
-    names(SPMmat) <- names(geneExpCastMat)
-    DPM <- unlist(lapply(DPMlist, function(x){ x[[2]] }))
-    SPMmat$DPM <- DPM
-    SPMmat <- cbind(geneExpCast[, c("gencodeId", "geneSymbol", "geneType")], SPMmat)
-
-    return(SPMmat)
-  }else if(method== "entropy"){
-    TSI <- copy(geneExpCastMat)
-    TSI$TSI <- apply(geneExpCastMat, 1, function(x){
-      x <- as.numeric(x)
-      if( all(x==0)){
-        pi <- rep(0, length(x))
-      }else{
-        pi <- x/sum(x)
-      }
-      sum(na.omit(-pi*log(pi,2)))
-    })
-    TSI <- cbind(geneExpCast[, c("gencodeId", "geneSymbol", "geneType")], TSI)
-    return(TSI)
   }else{
-    stop("Please choose the right method.")
+    stop("Please select the correct method...")
   }
-
 }
 
 
-
-
-#' @title eQTL-specific analysis
-#' @param gene (character) gene symbol or gencode id (versioned or unversioned are both supported).
-#' @param geneType (character) options: "auto","geneSymbol" or "gencodeId". Default: "auto".
-#' @param variantName (character) name of variant, dbsnp ID and variant id is supported, eg. "rs138420351" and "chr17_7796745_C_T_b38".
-#' @param variantType (character) options: "auto", "snpId" or "variantId". Default: "auto".
-#' @param tissueLabels (a character vector) can be listed with `ebi_study_tissues`. If is null, use all tissue / cell-types. (Default)
-#' @param study (character) Studies can be listed using `ebi_study_tissues`. If is null, use all studies (Default).
-#' @param population (string) One of the 5 popuations from 1000 Genomes: 'AFR', 'AMR', 'EAS', 'EUR', and 'SAS'.
-#' @import data.table
-#' @import stringr
-#' @return A list containing four data.table objects, including: "snpLD" for LD details of the specified SNP; "assoAllLd" for eQTL details of LD-associated SNPs;  "lm_R2_logP" for liner regression results; "cor_R2_logP" for correlation outputs;
-#' @export
+#' @title conduct colocalization analysis with customized xQTL data
 #'
+#' @param gwasDF data.frame or data.table, required cols: rsid, chrom, position, pValue, maf, beta, se
+#' @param qtlDF data.frame or data.table, required cols:  rsid, chrom, position, pValue, maf, beta, se
+#' @param mafThreshold Cutoff of maf to remove rare variants.
+#' @param gwasSampleNum Sample number of GWAS dataset. Default:50000.
+#' @param qtlSampleNum Sample number of QTL dataset. Default:10000.
+#' @param method (character) options: "coloc"(default) or "hyprcoloc" (need a highe version).
+#' @param bb.alg For `hyprcoloc`, branch and bound algorithm: TRUE, employ BB algorithm; FALSE, do not. Default: FALSE.
+#'
+#' @return A list
+#' @export
 #' @examples
 #' \donttest{
-#' propensityRes <- xQTLanalyze_propensity( gene="MMP7", variantName="rs11568818", study="TwinsUK")
-#' xQTLvisual_qtlPropensity(propensityRes)
+#' url1 <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/gwasDFsub_MMP7.txt"
+#' url2 <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/eqtl/MMP7_qtlDF.txt"
+#' gwasDF <- data.table::fread(url1)
+#' qtlDF <- data.table::fread(url2)
+#' output <- xQTLanalyze_coloc_diy(gwasDF = gwasDF, qtlDF=qtlDF, method="coloc")
 #' }
-xQTLanalyze_propensity <- function(gene="", geneType="auto", variantName="", variantType="auto", tissueLabels="", study="", population="EUR"){
-  .<- slope <- logP_minMax <- NULL
-  study_accession <- tissue_label <- pos <- snpPanel <- variantId <- R2 <-snpId <- pValue <- tissue <- study_id <- qtl_group <- SNP_B <- LDbins <- logP <- corRP <- NULL
-  pValue_propensity <- pValue_eQTL <- NULL
+xQTLanalyze_coloc_diy <- function(gwasDF, qtlDF, mafThreshold=0.01, gwasSampleNum=50000, qtlSampleNum=10000, method="coloc", bb.alg=FALSE){
+  rsid <- chrom <- chr <- position <- se <- pValue <- snpId <- maf <- pos <- i <- variantId <- se.eqtl <- se.gwas <-SNP.PP.H4 <- beta.eqtl <- beta.gwas <- posterior_prob <- regional_prob <-candidate_snp <- posterior_explained_by_snp  <- NULL
+  . <- NULL
 
-  # binNum A integer value. Number of bins to split values of R2 of LD into homogeneous bins.
-  binNum=4
-  ebi_ST <- data.table::copy(ebi_study_tissues)
-
-  # study- tissue:
-  if( all(tissueLabels!="") & study!=""){
-    ebi_ST <- ebi_ST[which(tolower(tissue_label) %in% tolower(tissueLabels) & tolower(ebi_ST$study_accession) == tolower(study) ), ][,.SD[1,], by="tissue_label"]
-    message(study)
+  if(method == "coloc" && !requireNamespace("coloc")){
+    stop("please install package \"coloc\" with install.packages(\"coloc\").")
   }
 
-  # all tissue- study:
-  if(study=="" & all(tissueLabels=="") ){
-    ebi_ST <- ebi_ST[,.SD[1,], by="tissue_label"]
+
+  # eqtl dataset:
+  names(qtlDF) <- c("rsid", "chrom",  "position", "pValue", "maf", "beta", "se")
+  # chromosome:
+  P_chrom <- ifelse(stringr::str_detect(qtlDF[1, ]$chr, "chr"), qtlDF[1, ]$chr, paste0("chr", qtlDF[1, ]$chr))
+
+  eqtlInfo <- qtlDF[,.(rsid,chrom, maf=as.numeric(maf), beta=as.numeric(beta), se=as.numeric(se), pValue=as.numeric(pValue), position=as.numeric(position))]
+
+  eqtlInfo<- eqtlInfo[maf>mafThreshold & maf <1,]
+  # 去重：
+  eqtlInfo <- eqtlInfo[order(rsid, pValue)][!duplicated(rsid)]
+
+  if(nrow(eqtlInfo)==0){
+    message("Number of eQTL association is <1")
+    return(NULL)
   }
 
-  if(study!="" & all(tissueLabels=="") ){
-    ebi_ST <- ebi_ST[ which(tolower(ebi_ST$study_accession) == tolower(study)),][,.SD[1,], by="tissue_label"]
-  }
+  message("Data processing...")
 
-  if(study=="" & all(tissueLabels!="") ){
-    ebi_ST <- ebi_ST[ which(tolower(tissue_label) %in% tolower(tissueLabels)),][,.SD[1,], by="tissue_label"]
-  }
+  ##################### gwas dataset:
+  gwasDF <- gwasDF[,1:7]
+  data.table::setDT(gwasDF)
+  names(gwasDF) <- c("rsid", "chr", "position", "pValue", "maf", "beta", "se")
+  # gwas subset:
+  gwasDF <- na.omit(gwasDF)
 
-  if(nrow(ebi_ST)==0){
-    stop("Please check study id or tissue label.")
+  # chromosome revise：
+  if( !stringr::str_detect(gwasDF[1,]$chr, stringr::regex("^chr")) ){
+    gwasDF$chr <- paste0("chr", gwasDF$chr)
   }
+  # convert variable class:
+  gwasDF[,c("position", "pValue", "maf", "beta", "se"):=.(as.numeric(position), as.numeric(pValue), as.numeric(maf), as.numeric(beta), as.numeric(se))]
+  # MAF filter:
+  gwasDF <- gwasDF[maf > mafThreshold & maf<1,]
+  # 去重：
+  gwasDF <- gwasDF[order(rsid, pValue)][!duplicated(rsid)]
+  # retain SNPs with rs id:
+  gwasDF <- gwasDF[stringr::str_detect(rsid,stringr::regex("^rs")),]
 
-  if(gene=="" || variantName==""){
-    stop("gene and variant can not be null!")
-  }
+  message(nrow(gwasDF))
 
-  # check geneType
-  if( !(geneType %in% c("auto","geneSymbol", "gencodeId")) ){
-    stop("Parameter \"geneType\" should be choosen from \"auto\", \"geneSymbol\", and \"gencodeId\".")
-  }
-  if( length(gene)==1 && gene!=""){
-    # Automatically determine the type of variable:
-    if(geneType=="auto"){
-      if( all(unlist(lapply(gene, function(g){ str_detect(g, "^ENSG") }))) ){
-        geneType <- "gencodeId"
-      }else{
-        geneType <- "geneSymbol"
-      }
-    }
-  }
-
-  # check variantType:
-  if( !(variantType %in% c("auto","snpId", "variantId")) ){
-    stop("Parameter \"geneType\" should be choosen from \"auto\", \"snpId\", and \"variantId\".")
-  }
-  if(length(variantName)==1 && variantName!=""){
-    # auto pick variantType
-    if(variantType=="auto"){
-      if(stringr::str_detect(variantName, stringr::regex("^rs"))){
-        variantType <- "snpId"
-      }else if(stringr::str_count(variantName,"_")>=3){
-        variantType <- "variantId"
-      }else{
-        stop("Note: \"variantName\" only support dbSNP id that start with \"rs\", like: rs12596338, or variant ID like: \"chr16_57156226_C_T_b38\", \"16_57190138_C_T_b37\" ")
-      }
-    }
-  }
-
-  # check study:
-  if( length(study) ==1 && study!="" ){
-    if(toupper(study) %in% toupper(unique(ebi_ST$study_accession))){
-      study <- unique(ebi_ST$study_accession)[ toupper(unique(ebi_ST$study_accession)) == toupper(study) ]
-      message("== Study [", study, "] detected...")
-    }else{
-      message("ID\tstudy\ttissueLabel")
-      for(i in 1:nrow(ebi_ST)){ message(i,"\t", paste(ebi_study_tissues[i ,.(study_accession, tissue_label)], collapse = " \t ")) }
-      stop("== Study [",study,"] can not be correctly matched, please choose from above list: ")
-    }
-  }
-
-  # variant detail:
-  variantInfo <- xQTLquery_varId(variantName, variantType = variantType)
-  if( (!exists("variantInfo")) || nrow(variantInfo)==0){
-    stop("Variant [",variantName,"] is not exists in GTEx, please check your input.")
-  }
-  if(nrow(variantInfo)>1){
-    variantInfo <- variantInfo[1,]
-  }
-
-  # fetch LD:
-  message("== Retrieve LD information of SNP: [",variantInfo$snpId,"]...")
-  try(snpLD <- retrieveLD(variantInfo$chromosome, variantInfo$snpId, population))
-  data.table::setDT(snpLD)
-  snpLD <- snpLD[which(stringr::str_detect(SNP_B, stringr::regex("^rs"))), ]
-  # try(snpLD <- retrieveLD_LDproxy(targetSnp= variantInfo$snpId, population = population,  windowSize = 500000,genomeVersion = "grch38", token="9246d2db7917") )
   #
-  if(nrow(snpLD)<1){
-    stop("No LD found for variant: [", variantInfo$snpId, "]")
+  gwasEqtlInfo <- merge(gwasDF, eqtlInfo[,.(rsid, maf, pValue, position,beta, se)], by=c("rsid", "position"), suffixes = c(".gwas",".eqtl"))
+  gwasEqtlInfo <- gwasEqtlInfo[se.eqtl !=0 & se.gwas !=0, ]
+
+  if(nrow(gwasEqtlInfo)==0){
+    message("No shared variants between eQTL and GWAS, please check your input!.")
+    return(NULL)
   }
-  message("== Number of LD-associated variants: ", nrow(snpLD))
+  message("== Start the colocalization analysis")
 
-  # remove variants don't exist in GTEx.
-  # chrom_snp <- stringr::str_split(snpLD[1,]$Coord, ":")[[1]][1]
-  # snpLD$pos <- as.numeric(unlist(lapply(snpLD$Coord, function(x){ stringr::str_split(x,":")[[1]][2] })))
-  # a<- xQTLquery_varPos(chrom = chrom_snp, pos = snpLD$pos, datasetId = "gtex_v8")
+  if(method=="coloc"){
+    message("== Using method: coloc")
+    # 防止 check_dataset 中 p = pnorm(-abs(d$beta/sqrt(d$varbeta))) * 2 出错
+    suppressWarnings(coloc_Out <- coloc::coloc.abf(dataset1 = list( pvalues = gwasEqtlInfo$pValue.gwas, type="quant", N=gwasSampleNum, snp=gwasEqtlInfo$rsid, MAF=gwasEqtlInfo$maf.gwas),
+                                                   dataset2 = list( pvalues = gwasEqtlInfo$pValue.eqtl, type="quant", N=qtlSampleNum, snp=gwasEqtlInfo$rsid, MAF= gwasEqtlInfo$maf.eqtl)))
+    coloc_Out_results <- as.data.table(coloc_Out$results)
+    # coloc_Out_results$gene <- traitGenes[i]
+    coloc_Out_summary <- as.data.table(t(as.data.frame(coloc_Out$summary)))
+    coloc_Out_summary$candidate_snp <- coloc_Out_results[order(-SNP.PP.H4)][1,]$snp
+    coloc_Out_summary$SNP.PP.H4 <- coloc_Out_results[order(-SNP.PP.H4)][1,]$SNP.PP.H4
+    message("== Done")
 
-  # 从LD 0-1的10个区间随机选10个突变进行作图：
-  # snpLD <- snpLD[,.(SNP_A= variantInfo$snpId, SNP_B=RS_Number, R2)]
-  # # cut LD into 10 bins
-  if( nrow(snpLD)>100){
-    message("== Select by bins")
-    binNumForSample_tmp <- 10
-    varNumForSample_tmp <- 10
-    snpLD$LDbins <- as.character(cut(snpLD$R2, breaks=seq(0,1,length.out=(binNumForSample_tmp+1)) ))
-    snpLDForSample_tmp <- as.data.frame(tapply( 1:nrow(snpLD), snpLD$LDbins, function(x){ if(length(x)<=varNumForSample_tmp){return(x)}else{ return(sample(x, varNumForSample_tmp, replace = FALSE)) } }))
-    names(snpLDForSample_tmp) <- "ID"
-    snpLDForSample_tmp$LDbins <- rownames(snpLDForSample_tmp)
-    data.table::setDT(snpLDForSample_tmp)
-    # #
-    snpLD <- snpLD[do.call(c,snpLDForSample_tmp$ID),-c("LDbins")][order(R2)]
-    rm(binNumForSample_tmp, varNumForSample_tmp, snpLDForSample_tmp)
+    print(coloc_Out_summary)
+    # coloc_Out_summary$pearsonCoor <- cor(-log(gwasEqtlInfo$pValue.gwas, 10),-log(gwasEqtlInfo$pValue.eqtl, 10), method = "pearson")
+
+    return(list(coloc_Out_summary=coloc_Out_summary, gwasEqtlInfo=gwasEqtlInfo))
   }
-
-  # Hypothesis testing
-  # 对于每个组织分别进行假设检验
-  # 1. 获取所有组织该基因的 eQTL. 2. 为每个 LD-associated gene构建panel. 3. 获得real panel和simulated panel 的SNP. 4.
-  ebi_ST$pValue_eQTL <- (-1)
-  ebi_ST$pValue_propensity <- (-1)
-  assoAll <- data.table()
-  for( i in 1:nrow(ebi_ST)){
-    # 如果有多个 qtl group:
-    message("")
-    message("==> For tissue ",ebi_ST[i,]$tissue_label, " (",i,"/",nrow(ebi_ST),")")
-    geneAsso_i <- xQTLdownload_eqtlAllAsso(gene=gene, geneType = geneType, tissueLabel = ebi_ST[i,]$tissue_label, study=ebi_ST[i,]$study_accession)
-    if(!exists("geneAsso_i") ||is.null(geneAsso_i)|| nrow(geneAsso_i)==0){
-      next()
-    }else{
-      geneAsso_i <- geneAsso_i[ qtl_group ==geneAsso_i[1,]$qtl_group,][order(pos)]
-    }
-    # LD-associated gene for plot:
-    asso_I <- geneAsso_i[snpId %in% union(snpLD$SNP_B, snpLD$SNP_A),.(snpId, pValue, beta, tissue, tissue_label, study_id, qtl_group)]
-    assoAll <- rbind(assoAll, asso_I)
-    rm(asso_I)
-
-    # all variants of gene:
-    assoAllLd_i <- geneAsso_i[,.(snpId, pos, pValue)]
-    assoAllLd_i <- merge(assoAllLd_i, snpLD[,.(snpId=SNP_B,R2)], by="snpId", sort=FALSE)
-    assoAllLd_i$snpPanel <- paste0("s",1:nrow(assoAllLd_i))
-
-    assoControl <- rbindlist(lapply(1:nrow(assoAllLd_i), function(snp_j){
-      tmp <- geneAsso_i[data.table(ID=1:nrow(geneAsso_i), pos = geneAsso_i$pos, diff=abs(geneAsso_i$pos-assoAllLd_i[snp_j,]$pos))[diff!=0][order(diff)][1:5,]$ID,.(snpId, pos, pValue)]
-      tmp$snpPanel <- assoAllLd_i[snp_j,]$snpPanel
-      return(tmp)
-    }))
-    #
-
-    asso_i <- rbind(assoAllLd_i[,-c("R2")], assoControl)
-    asso_i <- merge(asso_i,  assoAllLd_i[,.(snpPanel,R2)], by="snpPanel")
-    message("==> Start calculating p-value in ",ebi_ST[i,]$tissue_label, "; ",i,"/",nrow(ebi_ST))
-    corValues <- unlist(lapply(1:1000, function(x){
-      if(x %% 100 ==0){ message("==> Complete ",x/10,"% in tissue: ",  ebi_ST[i,]$tissue_label ," (",i,"/",nrow(ebi_ST),")")}
-      sampleSnps <- rbindlist(lapply(unique(asso_i$snpPanel), function(xx){ a=asso_i[snpPanel==xx];a[sample(1:nrow(a),1),] }))
-      return(cor(sampleSnps$R2, -log10(sampleSnps$pValue)))
-    }))
-    corReal <- cor(assoAllLd_i$R2, -log10(assoAllLd_i$pValue))
-    ebi_ST[i, "pValue_propensity"] <- 1-(length(which(corReal>corValues)))/1001
-    ebi_ST[i, "pValue_eQTL"] <- geneAsso_i[snpId==variantInfo$snpId,]$pValue
-    rm(geneAsso_i, assoAllLd_i, assoControl, asso_i, corValues, corReal)
-  }
-  ebi_ST[pValue_propensity == (-1),"pValue_propensity"] <-NA
-  ebi_ST[pValue_eQTL == (-1),"pValue_eQTL"] <-NA
-  tissuePropensity  <- copy(ebi_ST)
-
-  if(all(is.na(tissuePropensity$pValue_propensity))){
-    stop("No associations were fetched from ", study)
-  }
-
-  # Retain min pvalue in each tissue_label-study, due to the duplication induced by qtl_group.
-  assoAll <- assoAll[,.SD[which.min(pValue),], by=c("tissue", "tissue_label", "study_id", "qtl_group", "snpId")]
-  assoAllLd <- merge(snpLD[,.(snpId=SNP_B, R2)], assoAll, by="snpId")
-  assoAllLd$logP <- ifelse(assoAllLd$pValue==0, 0, (-log(assoAllLd$pValue,10)))
-  # scale logP by tissue group:
-  assoAllLd <- assoAllLd[,.(snpId, R2, beta, logP, logP_minMax=(logP-min(logP))/(max(logP)-min(logP))),by="tissue_label"]
-
-  # saveRDS(ebi_ST,"../ebi_ST_FLOT1.rds")
-  # query eQTL in each tissue:
-  # eQTLs <- data.table()
-  # for( i in 1:nrow(ebi_ST)){
-  #   eQTL_i <- xQTLdownload_eqtlAllAsso(gene=gene, variantName = variantName, tissueLabel = ebi_ST[i,]$tissue_label, study=ebi_ST[i,]$study_id)
-  #   if(!exists("eQTL_i") ||is.null(eQTL_i)|| nrow(eQTL_i)==0){
-  #     next()
-  #   }else{
-  #     eQTL_i <- eQTL_i[,.(variantId, snpId, pos, tissue_label, study_id, pValue)]
-  #   }
-  #   eQTLs <- rbind(eQTLs, eQTL_i)
-  # }
-  # tissueSpecificity <- merge(ebi_ST, eQTLs[,.(tissue_label, study_id, pValue)], by=c("tissue_label", "study_id"))
-
-  # lm:
-  lm_f <- function(DT){
-    lm_tmp <- lm(logP_minMax~R2,DT);
-    return( data.table(slope=lm_tmp$coefficients['R2'], intercept= lm_tmp$coefficients['(Intercept)']) )}
-  lm_R2_logP <- assoAllLd[,lm_f(.SD), by="tissue_label"][order(slope)]
-
-  # cor:
-  cor_R2_logP <- assoAllLd[,.(corRP=cor(R2, logP_minMax), corPvalue=cor.test(R2, logP_minMax)$p.value),by="tissue_label"][order(corRP)]
-  cor_R2_logP$logCorP <- log10( cor_R2_logP$corPvalue)*(-1)
-
-  return(list(snpLD=snpLD, tissuePropensity=tissuePropensity, cor_R2_logP=cor_R2_logP, lm_R2_logP=lm_R2_logP, assoAllLd=assoAllLd))
 }
-
-
-
-
-
-
 
 
 

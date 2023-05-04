@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+
+<html lang="en-US" xml:lang="en-US">
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="RuoFan Daing" />
+
+<meta name="date" content="2023-05-03" />
+
+<title>1. xQTLbiolinks: query and download</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">1. xQTLbiolinks: query and download</h1>
+<h4 class="author">RuoFan Daing</h4>
+<h4 class="date">2023-05-03</h4>
+
+
+
+<div id="load-packages" class="section level2">
+<h2>Load packages:</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xQTLbiolinks)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
+</div>
+<div id="xqtl-query" class="section level2">
+<h2>xQTL Query:</h2>
+<div id="query-eqtls" class="section level3">
+<h3>Query eQTLs:</h3>
+<div id="query-significant-eqtl-associations-with-a-variant-id-across-all-tissues" class="section level4">
+<h4><strong>Query significant eQTL associations with a variant id across
+all tissues:</strong></h4>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>eQTL_sig1 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="st">&quot;rs201327123&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>eQTL_sig1 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="st">&quot;chr1_14677_G_A_b38&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Query significant eQTL associations with a variant id in a specified tissue:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>eQTL_sig1 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="st">&quot;chr1_14677_G_A_b38&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">tissueSiteDetail=</span><span class="st">&quot;Skin - Sun Exposed (Lower leg)&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>eQTL_sig1</span></code></pre></div>
+</div>
+<div id="query-eqtl-associations-for-multiple-variants" class="section level4">
+<h4><strong>Query eQTL associations for multiple variants:</strong></h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>varInfo <span class="ot">&lt;-</span>  <span class="fu">xQTLquery_varPos</span>(<span class="at">chrom=</span><span class="st">&quot;chr1&quot;</span>, <span class="at">pos=</span><span class="fu">c</span>(<span class="dv">1102708</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>eQTL_sig2 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="at">variantName=</span>varInfo<span class="sc">$</span>snpId)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(eQTL_sig2)</span></code></pre></div>
+</div>
+<div id="query-eqtl-associations-by-genes-or-tissues" class="section level4">
+<h4><strong>Query eQTL associations by genes or tissues:</strong></h4>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>eQTL_sig3 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="at">genes=</span><span class="st">&quot;ATAD3B&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>eQTL_sig3 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="at">genes=</span><span class="fu">c</span>(<span class="st">&quot;TP53&quot;</span>, <span class="st">&quot;SLC35E2B&quot;</span>), <span class="at">tissueSiteDetail=</span> <span class="st">&quot;Brain - Cerebellum&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>eQTL_sig3 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="at">genes=</span><span class="st">&quot;ENSG00000141510.16&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(eQTL_sig3)</span></code></pre></div>
+</div>
+<div id="query-eqtl-associations-with-a-variant-gene-pair" class="section level4">
+<h4><strong>Query eQTL associations with a variant-gene
+pair:</strong></h4>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>eQTL_sig4 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="at">variantName=</span><span class="st">&quot;rs1641513&quot;</span>, <span class="at">genes=</span><span class="st">&quot;TP53&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>eQTL_sig4 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtlSig</span>(<span class="at">variantName=</span><span class="st">&quot;chr1_1667948_A_G_b38&quot;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">genes=</span><span class="st">&quot;SLC35E2B&quot;</span>, <span class="at">tissueSiteDetail=</span><span class="st">&quot;Kidney - Cortex&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>eQTL_sig4</span></code></pre></div>
+<p><strong>Multi-tissue eQTL metasoft results for a given gene and
+variant can be also queried using <code>xQTLquery_eqtl</code>, the
+results include: m-value (mValue), normalized effect size (nes), p-value
+(pValue) and standard error (se).</strong></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Query with a gene symbol:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>eqtlMeta <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtl</span>(<span class="at">gene=</span><span class="st">&quot;TP53&quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Query with a variant-gene pair:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>eqtlMeta <span class="ot">&lt;-</span> <span class="fu">xQTLquery_eqtl</span>(<span class="at">variantName=</span><span class="st">&quot;rs1641513&quot;</span>,<span class="at">gene=</span><span class="st">&quot;TP53&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(eqtlMeta)</span></code></pre></div>
+</div>
+</div>
+<div id="query-sqtls" class="section level3">
+<h3>Query sQTLs:</h3>
+<div id="query-sqtl-associations-with-rsid" class="section level4">
+<h4><strong>Query sQTL associations with rsid:</strong></h4>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>sQTL_sig1 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sqtlSig</span>(<span class="at">variantName=</span><span class="st">&quot;rs201327123&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>sQTL_sig1 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sqtlSig</span>(<span class="at">variantName=</span><span class="st">&quot;chr1_14677_G_A_b38&quot;</span>, <span class="at">tissueSiteDetail=</span><span class="st">&quot;Whole Blood&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sQTL_sig1</span></code></pre></div>
+</div>
+<div id="query-sqtl-associations-with-gene-symbol-and-gencode-id" class="section level4">
+<h4><strong>Query sQTL associations with gene symbol and gencode
+ID:</strong></h4>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>sQTL_sig2 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sqtlSig</span>(<span class="at">genes=</span><span class="st">&quot;ENSG00000141510.16&quot;</span>, <span class="at">tissueSiteDetail=</span><span class="st">&quot;Lung&quot;</span> )</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>sQTL_sig2 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sqtlSig</span>(<span class="at">genes=</span><span class="fu">c</span>(<span class="st">&quot;ATAD3B&quot;</span>, <span class="st">&quot;MLH1&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sQTL_sig2</span></code></pre></div>
+</div>
+<div id="query-sqtl-associations-with-the-variant-genes-pair" class="section level4">
+<h4><strong>Query sQTL associations with the variant-genes
+pair:</strong></h4>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>sQTL_sig3 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sqtlSig</span>(<span class="at">variantName=</span><span class="st">&quot;rs201327123&quot;</span>, <span class="at">genes=</span><span class="fu">c</span>(<span class="st">&quot;WASH7P&quot;</span>,<span class="st">&quot;RP11-206L10.2&quot;</span>))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>sQTL_sig3 <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sqtlSig</span>(<span class="at">variantName=</span><span class="st">&quot;chr17_7465085_A_G_b38&quot;</span>, <span class="at">genes=</span><span class="st">&quot;TP53&quot;</span>, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">tissueSiteDetail=</span><span class="st">&quot;Lung&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>sQTL_sig3</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="xqtls-download" class="section level2">
+<h2>xQTLs Download</h2>
+<div id="eqtl-download" class="section level3">
+<h3>eQTL Download:</h3>
+<div id="download-all-eqtl-associations-for-mlh1-rs13315355-pair-in-all-tissues-from-all-studies" class="section level4">
+<h4><strong>Download all eQTL associations for MLH1-rs13315355 pair in
+all tissues from all studies:</strong></h4>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>eqtlAssos <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">gene=</span><span class="st">&quot;MLH1&quot;</span>, <span class="at">variantName =</span> <span class="st">&quot;rs13315355&quot;</span>, <span class="at">study=</span><span class="st">&quot;&quot;</span>)</span></code></pre></div>
+</div>
+<div id="download-all-eqtl-associations-for-gene-atp11b-in-muscle---skeletal-from-gtex_v8" class="section level4">
+<h4><strong>Download all eQTL associations for gene ATP11B in Muscle -
+Skeletal from GTEx_V8:</strong></h4>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>eqtlAssos <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="st">&quot;ATP11B&quot;</span>, <span class="at">tissueLabel=</span><span class="st">&quot;Muscle - Skeletal&quot;</span>)</span></code></pre></div>
+</div>
+<div id="download-all-eqtl-associations-for-snp-rs11568818-in-all-tissues-from-all-supported-studies" class="section level4">
+<h4><strong>Download all eQTL associations for SNP rs11568818 in all
+tissues from all supported studies:</strong></h4>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>eqtlAssos <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">variantName=</span><span class="st">&quot;rs11568818&quot;</span>, <span class="at">study=</span><span class="st">&quot;&quot;</span>)</span></code></pre></div>
+</div>
+<div id="download-all-eqtl-associations-of-snp-rs11568818-in-muscle---skeletal-from-gtex_v8" class="section level4">
+<h4><strong>Download all eQTL associations of SNP rs11568818 in Muscle -
+Skeletal from GTEx_V8:</strong></h4>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>eqtlAssos <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">variantName=</span><span class="st">&quot;chr11_102530930_T_C_b38&quot;</span>,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">tissueLabel=</span><span class="st">&quot;Muscle - Skeletal&quot;</span>, <span class="at">study=</span><span class="st">&quot;GTEx_V8&quot;</span>)</span></code></pre></div>
+</div>
+<div id="download-all-eqtl-associations-for-gene-atp11b-in-cd4-t-cell-from-all-supported-studies" class="section level4">
+<h4><strong>Download all eQTL associations for gene ATP11B in CD4+ T
+cell from all supported studies:</strong></h4>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>eqtlAssos <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">gene=</span><span class="st">&quot;MMP7&quot;</span>,<span class="at">tissueLabel =</span> <span class="st">&quot;CD4+ T cell&quot;</span>, <span class="at">study=</span><span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>eqtlAssos</span></code></pre></div>
+</div>
+</div>
+<div id="sqtl-download" class="section level3">
+<h3>sQTL Download:</h3>
+<div id="download-all-sqtl-associations-for-gene-mmp7-and-tp53-in-lung" class="section level4">
+<h4><strong>Download all sQTL associations for gene MMP7 and TP53 in
+Lung:</strong></h4>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>sqtlAssos <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_sqtlAllAsso</span>(<span class="at">genes=</span><span class="fu">c</span>(<span class="st">&quot;MMP7&quot;</span>,<span class="st">&quot;TP53&quot;</span>), <span class="at">tissue=</span><span class="st">&quot;Lung&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>sqtlAssos</span></code></pre></div>
+</div>
+</div>
+<div id="aqtl-download" class="section level3">
+<h3>3’aQTL Download:</h3>
+<div id="download-all-3aqtl-associations-for-gene-mmp7-in-lung" class="section level4">
+<h4><strong>Download all 3’aQTL associations for gene MMP7 in
+Lung:</strong></h4>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>aqtlAssos <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_xqtlAllAsso</span>(<span class="at">genes=</span><span class="fu">c</span>(<span class="st">&quot;MMP7&quot;</span>), <span class="at">tissue=</span><span class="st">&quot;Lung&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>aqtlAssos</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="query-details-of-gene-variant-tissue-and-samples-in-gtex" class="section level2">
+<h2>Query details of gene, variant, tissue and samples in GTEx:</h2>
+<div id="query-gene-details-with-gene-symbols-versioned-or-unversioned-gencode-id" class="section level4">
+<h4><strong>Query gene details with gene symbols, versioned or
+unversioned gencode ID:</strong></h4>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>geneInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_gene</span>(<span class="st">&quot;TP53&quot;</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>geneInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_gene</span>(<span class="fu">c</span>(<span class="st">&quot;tp53&quot;</span>,<span class="st">&quot;naDK&quot;</span>,<span class="st">&quot;SDF4&quot;</span>) )</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>geneInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_gene</span>(<span class="fu">c</span>(<span class="st">&quot;ENSG00000210195.2&quot;</span>,<span class="st">&quot;ENSG00000078808&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>geneInfo</span></code></pre></div>
+</div>
+<div id="query-variants-using-dbsnp-id-or-variant-id" class="section level4">
+<h4><strong>Query variants using dbSNP ID or variant ID:</strong></h4>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>varInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_varId</span>(<span class="st">&quot;rs12596338&quot;</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>varInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_varId</span>(<span class="st">&quot;chr11_66561248_T_C_b38&quot;</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>varInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_varPos</span>(<span class="at">chrom=</span><span class="st">&quot;chr1&quot;</span>, <span class="at">pos=</span><span class="fu">c</span>(<span class="dv">1102708</span>,<span class="dv">1105739</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>varInfo</span></code></pre></div>
+</div>
+<div id="query-tissue-using-tissue-name" class="section level4">
+<h4><strong>Query tissue using tissue name:</strong></h4>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>tissueAll <span class="ot">&lt;-</span> <span class="fu">xQTLquery_tissue</span>() <span class="co"># fetch all tissues in GTEx</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>Brain <span class="ot">&lt;-</span> <span class="fu">xQTLquery_tissue</span>(<span class="st">&quot;Brain&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>Brain</span></code></pre></div>
+</div>
+<div id="query-sample-using-tissue-name-or-sample-id" class="section level4">
+<h4><strong>Query sample using tissue name or sample ID:</strong></h4>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>sampleInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sampleByTissue</span>(<span class="st">&quot;Brain - Amygdala&quot;</span> )</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>sampleInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sampleByTissue</span>(<span class="at">tissueSiteDetail=</span><span class="st">&quot;Liver&quot;</span>, <span class="at">pathologyNotesCategories=</span><span class="cn">TRUE</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>sampleIds <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;GTEX-11NUK-0011-R4a-SM-DO12B&quot;</span>, <span class="st">&quot;GTEX-11ONC-0011-R4b-SM-DO93H&quot;</span>,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;GTEX-11DXY-0526-SM-5EGGQ&quot;</span>, <span class="st">&quot;GTEX-13OVJ-1026-SM-5IFGI&quot;</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>sampleInfo <span class="ot">&lt;-</span> <span class="fu">xQTLquery_sampleBySampleId</span>(sampleIds)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>sampleInfo</span></code></pre></div>
+</div>
+</div>
+<div id="xqtl-expression-download" class="section level2">
+<h2>xQTL expression download</h2>
+<div id="download-normalized-expression-of-gene-for-a-eqtl-pair." class="section level3">
+<h3>Download normalized expression of gene for a eQTL pair.</h3>
+<div id="download-exp-with-variant-gene-pair-in-different-tissues" class="section level4">
+<h4><strong>Download exp with variant-gene pair in different
+tissues:</strong></h4>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>eQTLexp <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlExp</span>(<span class="at">variantName=</span><span class="st">&quot;rs1641513&quot;</span>,<span class="at">gene=</span><span class="st">&quot;TP53&quot;</span>, <span class="at">tissueSiteDetail=</span><span class="st">&quot;Liver&quot;</span>)</span></code></pre></div>
+</div>
+<div id="download-expression-using-variant-id-and-gencode-id" class="section level4">
+<h4><strong>Download expression using variant ID and gencode
+ID:</strong></h4>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>eQTLexp <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlExp</span>(<span class="at">variantName=</span><span class="st">&quot;chr1_14677_G_A_b38&quot;</span>,<span class="at">gene=</span><span class="st">&quot;ENSG00000228463.9&quot;</span>,</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">tissueSiteDetail=</span><span class="st">&quot;Stomach&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>eQTLexp</span></code></pre></div>
+</div>
+</div>
+<div id="download-normalized-intron-excision-ratio-of-intron-for-a-sqtl-pair." class="section level3">
+<h3>Download normalized intron-excision ratio of intron for a sQTL
+pair.</h3>
+<div id="download-normalized-intron-excision-ratio-in-different-tissues" class="section level4">
+<h4><strong>Download normalized intron-excision ratio in different
+tissues:</strong></h4>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>sQTLratio <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_sqtlExp</span>(<span class="at">variantName=</span><span class="st">&quot;rs1450891501&quot;</span>,</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">phenotypeId=</span><span class="st">&quot;chr1:497299:498399:clu_54863:ENSG00000239906.1&quot;</span>,</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">tissueSiteDetail=</span><span class="st">&quot;Lung&quot;</span>)</span></code></pre></div>
+</div>
+<div id="dowload-normalized-intron-excision-ratio-using-variant-id" class="section level4">
+<h4><strong>Dowload normalized intron-excision ratio using variant
+ID:</strong></h4>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>sQTLratio <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_sqtlExp</span>(<span class="at">variantName=</span><span class="st">&quot;chr1_1259424_T_C_b38&quot;</span>,</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">phenotypeId=</span><span class="st">&quot; chr1:1487914:1489204:clu_52051:ENSG00000160072.19&quot;</span>,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">tissueSiteDetail=</span><span class="st">&quot;Adipose - Subcutaneous&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>sQTLratio</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="egenesgene-download" class="section level2">
+<h2>eGene/sGene download</h2>
+<div id="download-details-of-egenes-eqtl-genes-for-a-specified-gene-or-a-tissue." class="section level3">
+<h3>Download details of eGenes (eQTL Genes) for a specified gene or a
+tissue.</h3>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>eGeneInfo <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_egene</span>(<span class="at">tissueSiteDetail=</span><span class="st">&quot;Prostate&quot;</span>, <span class="at">recordPerChunk=</span><span class="dv">2000</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>eGeneInfo <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_egene</span>(<span class="st">&quot;TP53&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>eGeneInfo</span></code></pre></div>
+</div>
+<div id="download-details-of-sgenes-sqtl-genes-for-a-specified-gene-or-a-tissue." class="section level3">
+<h3>Download details of sGenes (sQTL Genes) for a specified gene or a
+tissue.</h3>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>sGeneInfo <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_sgene</span>(<span class="at">tissueSiteDetail=</span><span class="st">&quot;Liver&quot;</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>sGeneInfo <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_sgene</span>(<span class="at">gene=</span><span class="st">&quot;DDX11&quot;</span>, <span class="at">tissueSiteDetail=</span><span class="st">&quot;Liver&quot;</span> )</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>eGeneInfo</span></code></pre></div>
+</div>
+</div>
+<div id="gene-expression-download" class="section level2">
+<h2>Gene expression download</h2>
+<div id="download-normalized-gene-expression-at-the-sample-level-in-a-specified-tissue" class="section level3">
+<h3>Download normalized gene expression at the sample level in a
+specified tissue:</h3>
+<div id="download-gene-expression-with-a-genecode-id" class="section level4">
+<h4><strong>Download gene expression with a genecode ID:</strong></h4>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>expProfiles <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_exp</span>(<span class="st">&quot;ENSG00000210195.2&quot;</span>, <span class="at">tissueSiteDetail=</span><span class="st">&quot;Liver&quot;</span>)</span></code></pre></div>
+</div>
+<div id="download-gene-expression-into-a-summarizedexperiment-object" class="section level4">
+<h4><strong>Download gene expression into a SummarizedExperiment
+object:</strong></h4>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>expProfiles <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_exp</span>(<span class="st">&quot;ENSG00000210195.2&quot;</span>, <span class="at">tissueSiteDetail=</span><span class="st">&quot;Liver&quot;</span>,</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">toSummarizedExperiment=</span><span class="cn">TRUE</span>)</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="co"># extract expression profile from SummarizedExperiment object:</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>expDT <span class="ot">&lt;-</span> SummarizedExperiment<span class="sc">::</span><span class="fu">assay</span>(expProfiles)</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="co"># extract samples&#39; detail from SummarizedExperiment object:</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>sampleDT <span class="ot">&lt;-</span> SummarizedExperiment<span class="sc">::</span><span class="fu">colData</span>(expProfiles)</span></code></pre></div>
+</div>
+<div id="download-gene-expression-profiles-for-multiple-genes" class="section level4">
+<h4><strong>Download gene expression profiles for multiple
+genes:</strong></h4>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>expProfiles <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_exp</span>(<span class="fu">c</span>(<span class="st">&quot;tp53&quot;</span>,<span class="st">&quot;naDK&quot;</span>,<span class="st">&quot;SDF4&quot;</span>),</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">tissueSiteDetail=</span><span class="st">&quot;Artery - Coronary&quot;</span>,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">pathologyNotesCategories=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="download-using-versioned-and-unversioned-gencode-id." class="section level4">
+<h4><strong>Download using versioned and unversioned gencode
+Id.</strong></h4>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>expProfiles <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_exp</span>(<span class="fu">c</span>(<span class="st">&quot;ENSG00000141510.16&quot;</span>,<span class="st">&quot;ENSG00000008130.15&quot;</span>,<span class="st">&quot;ENSG00000078808&quot;</span>),</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">tissueSiteDetail=</span><span class="st">&quot;Artery - Coronary&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>expProfiles[,<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]</span></code></pre></div>
+</div>
+</div>
+<div id="download-median-expression-of-all-samples-for-specified-genes-across-tissues." class="section level3">
+<h3>Download median expression of all samples for specified genes across
+tissues.</h3>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>geneMedExp <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_geneMedExp</span>(<span class="at">genes=</span><span class="fu">c</span>(<span class="st">&quot;TP53&quot;</span>, <span class="st">&quot;IRF5&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>geneMedExp</span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

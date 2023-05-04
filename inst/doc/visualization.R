@@ -4,6 +4,7 @@ knitr::opts_chunk$set(
   progress =FALSE,
   comment = "#>"
 )
+options(rmarkdown.html_vignette.check_title = FALSE)
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  xQTLvisual_eqtl("KIF15")
@@ -33,6 +34,7 @@ knitr::opts_chunk$set(
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  expEqtl <- xQTLvisual_eqtlExp(variantName="rs78378222", gene ="TP53",
 #                                tissueSiteDetail="Lung")
+#  expEqtl
 
 ## ---- xQTLvisual_eqtlExp.png, fig.align = 'center', out.width = "30%", fig.cap = "", echo=FALSE----
 # knitr::include_graphics("images/visualization/xQTLvisual_eqtlExp.png")
@@ -41,6 +43,7 @@ knitr::opts_chunk$set(
 #  expSqtl <- xQTLvisual_sqtlExp(variantName="chr11_66561248_T_C_b38",variantType="variantId",
 #                                phenotypeId ="chr11:66348070:66353455:clu_8500:ENSG00000255468.6",
 #                                tissueSiteDetail="Skin - Sun Exposed (Lower leg)")
+#  expSqtl
 
 ## ---- xQTLvisual_sqtlExp.png, fig.align = 'center', out.width = "30%", fig.cap = "", echo=FALSE----
 # knitr::include_graphics("images/visualization/xQTLvisual_sqtlExp.png")
@@ -95,8 +98,7 @@ knitr::opts_chunk$set(
 # knitr::include_graphics("images/visualization/xQTLvisual_locusCombine.png")
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  propensityRes <- xQTLanalyze_propensity( gene="MMP7", variantName="rs11568818", study="TwinsUK")
-#  xQTLvisual_qtlPropensity(propensityRes)
+#  xQTLvisual_coloc( gene="MMP7", variantName="rs11568818", study="TwinsUK")
 
 ## ---- xQTL_visual_eQTLspecificity.png, fig.align = 'center', out.width = "70%", fig.cap = "", echo=FALSE----
 # knitr::include_graphics("images/visualization/eQTLspecificity.png")

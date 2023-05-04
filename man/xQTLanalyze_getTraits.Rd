@@ -9,7 +9,9 @@ xQTLanalyze_getTraits(
   detectRange = 1e+06,
   tissueSiteDetail = "",
   genomeVersion = "grch38",
-  grch37To38 = FALSE
+  grch37To38 = FALSE,
+  overlapWithEGene = TRUE,
+  egeneDF = NULL
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ xQTLanalyze_getTraits(
 \item{genomeVersion}{"grch38" or "grch37". Default: "grch38"}
 
 \item{grch37To38}{TRUE or FALSE, we recommend converting grch37 to grch38, or using a input file of grch38 directly. Package \code{rtracklayer} is required.}
+
+\item{overlapWithEGene}{TRUE(default) of FALSE. take the intersection with eGenes, egene data.frame will be automatically download from GTEx, or can be provided by the parameter \code{egeneDF} specified the data.frame of one column of genecode ID.  Default:TRUE}
+
+\item{egeneDF}{A data.table object of one column of gencode ID. requiring overlapWithEGene is TRUE.}
 }
 \value{
 A data.table object
@@ -31,9 +37,15 @@ Identify trait genes using sentinel SNPs generated from \code{xQTLanalyze_getSen
 }
 \examples{
 \donttest{
+# without a customized egene file,
 URL1<-"https://gitee.com/stronghoney/exampleData/raw/master/gwas/GLGC_CG0052/sentinelSnpDF.txt"
 sentinelSnpDF <- data.table::fread(URL1)
-traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF,detectRange=1e4,"Brain - Cerebellum",
+traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
                                    genomeVersion="grch37", grch37To38=TRUE)
+# with a egene file:
+egeneFile <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/egeneDF.txt"
+egeneDF <- data.table::fread(egeneFile)
+traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
+                                   genomeVersion="grch37", grch37To38=TRUE, egeneDF=egeneDF)
 }
 }

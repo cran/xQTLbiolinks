@@ -1,8 +1,6 @@
-### xQTLbiolinks: An R package aims to query, download, visualize and perform colocalization analyses between xQTL data and GWAS signals
+### xQTLbiolinks: a comprehensive and scalable tool for integrative analysis of molecular QTLs
 
-**`xQTLbiolinks`** is a well-developed R package that enables users-customized query, extraction, and visualization of **molecular QTLs** (eQTLs and sQTLs) and **gene expression** data from public resources (e.g., GTEx) through the application programming interface (API) of [GTEx](https://gtexportal.org/home/api-docs/index.html) and [eQTL Catalogue](https://www.ebi.ac.uk/eqtl/api-docs/).
-
-xQTLbiolinks consists of tailored functions that can be grouped into four modules: **Query**, **Download**, **Analyze** and **Visualization**.
+**`xQTLbiolinks`** is a end-to-end bioinformatic tool for efficient mining and analyzing public and user-customized xQTLs data for the discovery of disease susceptibility genes. xQTLbiolinks consists of tailored functions that can be grouped into four modules: **Data retrieval**, **Pre-processing**, **Analysis** and **Visualization**.
 
 Instructions, documentation, and tutorials can be found at [**here**](https://dingruofan.github.io/xQTLbiolinks/index.html).
 
@@ -10,42 +8,37 @@ Instructions, documentation, and tutorials can be found at [**here**](https://di
 
 ### Quick Start
 
-1.  `xQTLbiolinks` has been successfully installed on Mac OS X, Linux, and Windows, using the `install.package` function to install directly from CRAN with command `install.package("xQTLbiolinks")`. Check more details in section "Installation" below.
-2.  Find the [**Full document**](https://dingruofan.github.io/xQTLbiolinks/articles/Quick_start.html) for a quick application of colocalization analysis with xQTLbiolinks.
-3.  Go through a whole [**Case study**](https://dingruofan.github.io/xQTLbiolinks/articles/Colocalization_analysis_with_xQTLbiolinks.html) of detection of casual vairants and genes in prostate cancer using `xQTLbiolinks`.
-4.  Then walk through these vignettes to learn more about xQTLbiolinks: [**Function Instruction**](https://dingruofan.github.io/xQTLbiolinks/reference/index.html) and [**Visualization of expression and xQTL**](https://dingruofan.github.io/xQTLbiolinks/articles/visualization.html).
+1.  `xQTLbiolinks` can be installed and used on any operator systems supporting R. Once the R (version 4.0 or later) is available, using `install.packages("xQTLbiolinks")` to install the steady version (v1.4.2) of `xQTLbiolinks`. The latest version (v1.4.3) is also available at [GitHub repository](https://github.com/dingruofan/xQTLbiolinks/) and it can be installed through `remotes::install_github("dingruofan/xQTLbiolinks”)`. For more details, please refer to the instructions at **Installation** section below.
+2. Find the [**Query and download**](https://dingruofan.github.io/xQTLbiolinks/articles/query_download.html) for xQTLs, gene, variant, tissue, sample and expressions.
+3.  Find the [**Quick Start**](https://dingruofan.github.io/xQTLbiolinks/articles/Quick_start.html) for a quick application of colocalization analysis with xQTLbiolinks. Go through a whole [**Case study**](https://dingruofan.github.io/xQTLbiolinks/articles/Colocalization_analysis_with_xQTLbiolinks.html) of detection of casual vairants and genes in prostate cancer using `xQTLbiolinks`.
+4.  The details and instructions of all functions implemented in xQTLbiolinks can be found [**here**] (https://dingruofan.github.io/xQTLbiolinks/reference/index.html). Find more instructions with examples for visualizations [**here**](https://dingruofan.github.io/xQTLbiolinks/articles/visualization.html).
 
 ### Citation
 
 If you find the xQTLbiolinks package or any of the source code in this repository useful for your work, please cite:
 
-> Ruofan Ding, Xudong Zou, Yangmei Qin, Gao Wang, Lei Li. **xQTLbiolinks: an R package for integrative analysis of xQTL data.** (submitted)
+> Ruofan Ding, Xudong Zou, Yangmei Qin, Hui Chen, Xuelian Ma, Gao Wang, Lei Li. **xQTLbiolinks: a comprehensive and scalable tool for integrative analysis of molecular QTLs.** (submitted)
 
 Institute of Systems and Physical Biology, Shenzhen Bay Laboratory, Shenzhen 518055, China
 
 ------------------------------------------------------------------------
 
 ### Installation
-
-1. We strongly recommend to install in the environment of R, instead of Rstudio.
-
-2. Package `SummarizedExperiment` is required but reposited in Biocouductor. If you haven't installed it, please install `SummarizedExperiment` from Biocouductor with following command.
-
-``` r
-# install required bioconductor package SummarizedExperiment:
-if (!require("BiocManager")){install.packages("BiocManager")}
-BiocManager::install("SummarizedExperiment")
+To install this R package, you will need to have required package `SummarizedExperiment` installed from Bioconductor with following command:
+```
+if (!require("BiocManager", quietly = TRUE)){install.packages("BiocManager")}
+BiocManager::install("SummarizedExperiment") # For windows or linux
+BiocManager::install("SummarizedExperiment",type="source") # For MAC
 ```
 
-3. Install `xQTLbiolinks` from CRAN or github.
-
+Once you have installed the required package, you can then install `xQTLbiolinks` from CRAN or github(recommended) using following command:
 ``` r
-# This command should automatically install any missing dependencies that are available from CRAN
-install.packages("xQTLbiolinks")
-
-# Or install from github.
+# Install from github to get the latest version.
 if(!require("remotes")){install.packages("remotes")}
 remotes::install_github("dingruofan/xQTLbiolinks")
+
+# This command should automatically install any missing dependencies that are available from CRAN
+install.packages("xQTLbiolinks")
 ```
 
 

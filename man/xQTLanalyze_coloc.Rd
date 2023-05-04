@@ -38,7 +38,7 @@ xQTLanalyze_coloc(
 
 \item{gwasSampleNum}{Sample number of GWAS dataset. Default:50000.}
 
-\item{method}{(character) options: "coloc"(default) or "hyprcoloc" (need a highe version).}
+\item{method}{(character) options: "coloc"(default) or "hyprcoloc". Package \code{coloc} or \code{hyprcoloc} is required.}
 
 \item{token}{LDlink provided user token, default = NULL, register for token at https://ldlink.nci.nih.gov/?tab=apiaccess}
 

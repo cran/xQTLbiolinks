@@ -4,50 +4,54 @@ knitr::opts_chunk$set(
   progress =FALSE,
   comment = "#>"
 )
+options(rmarkdown.html_vignette.check_title = FALSE)
+
+## ---- colocalization_framework.png, fig.align = 'center', out.width = "70%", echo=FALSE----
+# knitr::include_graphics("images/quick_start/colocalization_framework.png")
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  library(data.table)
 #  library(xQTLbiolinks)
 #  library(stringr)
-
-## ---- message=FALSE, warning=FALSE, include=FALSE-----------------------------
-temp1 <- tempfile(fileext=".zip")
-download.file("http://github.com/dingruofan/exampleData/raw/master/env.zip", temp1)
-load(unz(temp1,"env.Rdata"))
-close(file(temp1))
-rm(temp1)
+#  library(coloc)
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  gwasDF <- fread("http://raw.githubusercontent.com/dingruofan/exampleData/master/gwas/AD/gwasDFsub.txt")
+#  gwasDF <- fread("https://raw.githubusercontent.com/dingruofan/exampleData/master/gwas/AD/gwasDFsub.txt")
 #  tissueSiteDetail="Brain - Cerebellum"
 
-## ---- eval=TRUE---------------------------------------------------------------
-head(gwasDF)
+## ---- eval=FALSE--------------------------------------------------------------
+#  head(gwasDF)
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  sentinelSnpDF <- xQTLanalyze_getSentinelSnp(gwasDF, pValueThreshold = 5e-08)
 
-## ---- eval=TRUE---------------------------------------------------------------
-sentinelSnpDF
+## ---- eval=FALSE--------------------------------------------------------------
+#  sentinelSnpDF
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e6, tissueSiteDetail=tissueSiteDetail)
 
-## ---- eval=TRUE---------------------------------------------------------------
-traitsAll
+## ---- eval=FALSE--------------------------------------------------------------
+#  traitsAll
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  output <- xQTLanalyze_coloc(gwasDF, "CLNK", tissueSiteDetail=tissueSiteDetail) # using gene symbol
 
-## ---- eval=TRUE---------------------------------------------------------------
-output$coloc_Out_summary
+## ---- eval=FALSE--------------------------------------------------------------
+#  output$coloc_Out_summary
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  outputs <- rbindlist(lapply( unique(traitsAll$gencodeId), function(x){ # using gencode ID.
 #             xQTLanalyze_coloc(gwasDF, x, tissueSiteDetail=tissueSiteDetail, method = "Both")$colocOut }))
 
-## ---- eval=TRUE---------------------------------------------------------------
-outputs
+## ---- eval=FALSE--------------------------------------------------------------
+#  outputs
+
+## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
+#  xQTLvisual_eqtl("ENSG00000109684.14")
+
+## ---- eqtl_multiple_tissues, fig.align = 'center', out.width = "80%", echo=FALSE----
+# knitr::include_graphics("images/quick_start/eQTL_multiple_tissue.png")
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  eqtlAsso <- xQTLdownload_eqtlAllAsso(gene="ENSG00000109684.14",
@@ -78,7 +82,7 @@ outputs
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
 #  xQTLvisual_eqtlExp("rs13120565", "ENSG00000109684.14", tissueSiteDetail = tissueSiteDetail)
 
-## ---- exp.png, fig.align = 'center', out.width = "30%", echo=FALSE------------
+## ---- exp.png, fig.align = 'center', out.width = "45%", echo=FALSE------------
 # knitr::include_graphics("images/quick_start/exp.png")
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
@@ -89,16 +93,10 @@ outputs
 # knitr::include_graphics("images/quick_start/xQTLvisual_locusCombine.png")
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  propensityRes <- xQTLanalyze_propensity( gene="ENSG00000109684.14", variantName="rs13120565",
-#                                           tissueLabels = c("Brain - Cerebellar Hemisphere",
-#                                           "Brain - Cerebellum", "Treg memory", "Colon - Transverse",
-#                                           "CD4+ T cell", "Kidney - Cortex", "Uterus", "Esophagus - Mucosa", "LCL") )
-
-## ---- eval=TRUE---------------------------------------------------------------
-propensityRes$tissuePropensity
-
-## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  xQTLvisual_qtlPropensity(propensityRes)
+#  multi_tissue_coloc <- xQTLvisual_coloc(gene="ENSG00000109684.14", variantName="rs13120565",
+#                                        tissueLabels = c("Brain - Cerebellar Hemisphere",
+#                                                          "Brain - Cerebellum", "Thyroid", "Lung",
+#                                                          "Cells - EBV-transformed lymphocytes"))
 
 ## ---- propensity.png, fig.align = 'center', out.width = "70%", echo=FALSE-----
 # knitr::include_graphics("images/quick_start/propensity.png")

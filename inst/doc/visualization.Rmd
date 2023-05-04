@@ -1,6 +1,6 @@
 ---
-title: "Visualization using xQTLbiolinks"
-date: "2022-06-08"
+title: "4. Visualization using xQTLbiolinks"
+date: "2023-05-01"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{visualization}
@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
   progress =FALSE,
   comment = "#>"
 )
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 Some visual examples are provided in this vignette, including example data, code, and figures.
@@ -59,6 +60,7 @@ geneExpTissues <- xQTLvisual_geneExpTissues("TP53")
 ```{r, results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 expEqtl <- xQTLvisual_eqtlExp(variantName="rs78378222", gene ="TP53",
                               tissueSiteDetail="Lung")
+expEqtl
 ```
 
 ```{r, xQTLvisual_eqtlExp.png, fig.align = 'center', out.width = "30%", fig.cap = "", echo=FALSE}
@@ -69,6 +71,7 @@ expEqtl <- xQTLvisual_eqtlExp(variantName="rs78378222", gene ="TP53",
 expSqtl <- xQTLvisual_sqtlExp(variantName="chr11_66561248_T_C_b38",variantType="variantId",
                               phenotypeId ="chr11:66348070:66353455:clu_8500:ENSG00000255468.6",
                               tissueSiteDetail="Skin - Sun Exposed (Lower leg)")
+expSqtl
 ```
 
 ```{r, xQTLvisual_sqtlExp.png, fig.align = 'center', out.width = "30%", fig.cap = "", echo=FALSE}
@@ -143,8 +146,7 @@ xQTLvisual_locusCombine(gwasEqtldata, highlightSnp="rs13120565")
 ```
 
 ```{r, results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-propensityRes <- xQTLanalyze_propensity( gene="MMP7", variantName="rs11568818", study="TwinsUK")
-xQTLvisual_qtlPropensity(propensityRes)
+xQTLvisual_coloc( gene="MMP7", variantName="rs11568818", study="TwinsUK")
 ```
 
 ```{r, xQTL_visual_eQTLspecificity.png, fig.align = 'center', out.width = "70%", fig.cap = "", echo=FALSE}
