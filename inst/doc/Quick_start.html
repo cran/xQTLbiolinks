@@ -352,18 +352,18 @@ susceptible genes and causal variants.</p>
 provide their own <strong>GWAS summary statistics data</strong>, specify
 the <strong>tissue</strong> of interest and import following
 packages:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xQTLbiolinks)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(coloc)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(xQTLbiolinks)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(coloc)</span></code></pre></div>
 </div>
 <div id="step-1.-data-pre-processing" class="section level2">
 <h2>Step 1. data pre-processing</h2>
 <p>Download and load an example file of summary statistics dataset
 (GRCh38). We perform colocalization analysis in
 <code>Brain - Cerebellum</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gwasDF <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">&quot;https://raw.githubusercontent.com/dingruofan/exampleData/master/gwas/AD/gwasDFsub.txt&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>tissueSiteDetail<span class="ot">=</span><span class="st">&quot;Brain - Cerebellum&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>gwasDF <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">&quot;https://master.dl.sourceforge.net/project/exampledata/gwasDFsub.txt&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>tissueSiteDetail<span class="ot">=</span><span class="st">&quot;Brain - Cerebellum&quot;</span></span></code></pre></div>
 <p>In this example, a data.table object of 16538 (rows) x 5 (cols) is
 loaded. Five columns are required (arbitrary column names is supported,
 but columns must be as the following order):</p>
@@ -376,7 +376,14 @@ from chr1-chr22;</p>
 <p><code>Col 5</code>. “MAF” (numeric). Allel frequency;</p>
 <p><code>Col 6</code>. “beta” (numeric). effect size.</p>
 <p><code>Col 7</code>. “se” (numeric). standard error.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(gwasDF)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">head</span>(gwasDF)</span></code></pre></div>
+<pre><code>#&gt;          rsid chrom position   pValue     AF     beta      se
+#&gt; 1: rs13120565     4 10702513 5.66e-10 0.6429  0.01825 0.00294
+#&gt; 2:  rs4697781     4 10703243 8.94e-10 0.6446  0.01803 0.00294
+#&gt; 3:  rs4697779     4 10701187 5.74e-09 0.3231 -0.01747 0.00300
+#&gt; 4:  rs4697780     4 10701381 5.95e-09 0.3231 -0.01746 0.00300
+#&gt; 5:  rs4547789     4 10702891 1.46e-08 0.3197 -0.01703 0.00300
+#&gt; 6: rs11726285     4 10700944 1.47e-08 0.3214 -0.01702 0.00301</code></pre>
 </div>
 <div id="step-2.-identify-sentinel-snps." class="section level2">
 <h2>Step 2. Identify sentinel snps.</h2>
@@ -388,10 +395,12 @@ the genome version of the GWAS file to GRCh38 if that is GRCh37 (run
 with parameter: <code>genomeVersion=&quot;grch37&quot;</code>;
 <code>grch37To38=TRUE</code>, and package <code>rtracklayer</code>is
 required).</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sentinelSnpDF <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_getSentinelSnp</span>(gwasDF, <span class="at">pValueThreshold =</span> <span class="fl">5e-08</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>sentinelSnpDF <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_getSentinelSnp</span>(gwasDF, <span class="at">pValueThreshold =</span> <span class="fl">5e-08</span>)</span></code></pre></div>
 <p>After filtering, a sentinel SNP with P-value&lt;5e-8 is detected in
 this example:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sentinelSnpDF</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>sentinelSnpDF</span></code></pre></div>
+<pre><code>#&gt;          rsid  chr position   pValue    maf    beta      se
+#&gt; 1: rs13120565 chr4 10702513 5.66e-10 0.6429 0.01825 0.00294</code></pre>
 </div>
 <div id="step-3.-identify-trait-genes-for-each-sentinel-snps." class="section level2">
 <h2>Step 3. Identify trait genes for each sentinel SNPs.</h2>
@@ -402,67 +411,85 @@ Every gene within 1Mb of sentinel SNPs is searched by fuction
 number of trait genes and thus reduce the running time, we take the
 overlap of eGenes and trait genes as the final output of the function
 <code>xQTLanalyze_getTraits</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>traitsAll <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_getTraits</span>(sentinelSnpDF, <span class="at">detectRange=</span><span class="fl">1e6</span>, <span class="at">tissueSiteDetail=</span>tissueSiteDetail)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>traitsAll <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_getTraits</span>(sentinelSnpDF, <span class="at">detectRange=</span><span class="fl">1e6</span>, <span class="at">tissueSiteDetail=</span>tissueSiteDetail)</span></code></pre></div>
 <p>Totally, 3 associations between 3 traits genes and 1 SNPs are
 detected</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>traitsAll</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>traitsAll</span></code></pre></div>
+<pre><code>#&gt;          rsid  chr position   pValue    maf    beta      se       gencodeId
+#&gt; 1: rs13120565 chr4 10702513 5.66e-10 0.6429 0.01825 0.00294 ENSG00000002587
+#&gt; 2: rs13120565 chr4 10702513 5.66e-10 0.6429 0.01825 0.00294 ENSG00000109684
+#&gt; 3: rs13120565 chr4 10702513 5.66e-10 0.6429 0.01825 0.00294 ENSG00000261490</code></pre>
 </div>
 <div id="step-4.-conduct-colocalization-analysis." class="section level2">
 <h2>Step 4. Conduct colocalization analysis.</h2>
-<p><strong>For a single trait gene</strong>, like <em>CLNK</em> in above
-table, colocalization analysis (using <code>coloc</code> method) can be
-performed with:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_coloc</span>(gwasDF, <span class="st">&quot;CLNK&quot;</span>, <span class="at">tissueSiteDetail=</span>tissueSiteDetail) <span class="co"># using gene symbol</span></span></code></pre></div>
-<p><em>output</em> is a list, including three parts:
-<em>coloc_Out_summary</em>, <em>gwasEqtlInfo</em>, and
-<em>gwasEqtlInfo</em>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>output<span class="sc">$</span>coloc_Out_summary</span></code></pre></div>
+<p><strong>For a single trait gene</strong>, like
+<em>ENSG00000109684</em> in above table, colocalization analysis (using
+<code>coloc</code> method) can be performed with:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">xQTLanalyze_coloc</span>(gwasDF, <span class="st">&quot;ENSG00000109684&quot;</span>, <span class="at">tissueSiteDetail=</span>tissueSiteDetail) <span class="co"># using gene symbol</span></span></code></pre></div>
+<p><em>output</em> is a list, including two parts:
+<em>coloc_Out_summary</em> and <em>gwasEqtlInfo</em>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>output<span class="sc">$</span>coloc_Out_summary</span></code></pre></div>
+<pre><code>#&gt;    nsnps    PP.H0.abf   PP.H1.abf    PP.H2.abf  PP.H3.abf PP.H4.abf
+#&gt; 1:  7107 7.097893e-11 1.32221e-07 3.890211e-06 0.00625302  0.993743
+#&gt;          traitGene candidate_snp SNP.PP.H4
+#&gt; 1: ENSG00000109684    rs13120565 0.5328849</code></pre>
 <p><strong>For multiple trait genes</strong>, a for loop or lapply
 function can be used to get all genes’ outputs (using both
 <code>coloc</code> and <code>hyprcoloc</code> methods).</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>outputs <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>( <span class="fu">unique</span>(traitsAll<span class="sc">$</span>gencodeId), <span class="cf">function</span>(x){ <span class="co"># using gencode ID.</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>           <span class="fu">xQTLanalyze_coloc</span>(gwasDF, x, <span class="at">tissueSiteDetail=</span>tissueSiteDetail, <span class="at">method =</span> <span class="st">&quot;Both&quot;</span>)<span class="sc">$</span>colocOut }))</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>outputs <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>( <span class="fu">unique</span>(traitsAll<span class="sc">$</span>gencodeId), <span class="cf">function</span>(x){ <span class="co"># using gencode ID.</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>           <span class="fu">xQTLanalyze_coloc</span>(gwasDF, x, <span class="at">tissueSiteDetail=</span>tissueSiteDetail, <span class="at">method =</span> <span class="st">&quot;Both&quot;</span>)<span class="sc">$</span>colocOut }))</span></code></pre></div>
 <p><em>outputs</em> is a data.table that combined all results of
 <em>coloc_Out_summary</em> of all genes.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>outputs</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>outputs</span></code></pre></div>
+<pre><code>#&gt;          traitGene nsnps    PP.H0.abf    PP.H1.abf    PP.H2.abf  PP.H3.abf
+#&gt; 1: ENSG00000002587  6452 1.730175e-05 3.218430e-02 6.603361e-05 0.12198838
+#&gt; 2: ENSG00000109684  7107 7.097893e-11 1.322210e-07 3.890211e-06 0.00625302
+#&gt; 3: ENSG00000261490  6601 5.287051e-05 9.848309e-02 4.801374e-04 0.89435622
+#&gt;     PP.H4.abf candidate_snp SNP.PP.H4 hypr_posterior hypr_regional_prob
+#&gt; 1: 0.84574398    rs13120565 0.4140146         0.5685             0.9694
+#&gt; 2: 0.99374296    rs13120565 0.5328849         0.9793             0.9999
+#&gt; 3: 0.00662768    rs13120565 0.4219650         0.0000             0.0101
+#&gt;    hypr_candidate_snp hypr_posterior_explainedBySnp
+#&gt; 1:         rs13120565                        0.2726
+#&gt; 2:         rs13120565                        0.4747
+#&gt; 3:         rs13120565                        0.4118</code></pre>
 </div>
 <div id="step-5.-visualization-of-the-results." class="section level2">
 <h2>Step 5. Visualization of the results.</h2>
 <p>For the potential casual gene
-<strong><em>ENSG00000109684.14</em></strong>
-(PP4=<strong>0.9937</strong> &amp;
-hypr_posterior=<strong>0.9793</strong>), we can get its significant
-associations across tissues:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_eqtl</span>(<span class="st">&quot;ENSG00000109684.14&quot;</span>)</span></code></pre></div>
+<strong><em>ENSG00000109684</em></strong> (PP4=<strong>0.9937</strong>
+&amp; hypr_posterior=<strong>0.9793</strong>), we can get its
+significant associations across tissues:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">xQTLvisual_eqtl</span>(<span class="st">&quot;ENSG00000109684&quot;</span>)</span></code></pre></div>
 <p>For the purpose of visualization of p-value distribution and
 comparison of the signals of GWAS and eQTL: We merge the variants of
 GWAS and eQTL by rsid first.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>eqtlAsso <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">gene=</span><span class="st">&quot;ENSG00000109684.14&quot;</span>, </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">tissueLabel =</span> tissueSiteDetail)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>gwasEqtldata <span class="ot">&lt;-</span> <span class="fu">merge</span>(gwasDF, eqtlAsso[,.(<span class="at">rsid=</span>snpId, <span class="at">position=</span>pos, maf, pValue)],</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>, <span class="st">&quot;position&quot;</span>), <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">&quot;.gwas&quot;</span>,<span class="st">&quot;.eqtl&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>eqtlAsso <span class="ot">&lt;-</span> <span class="fu">xQTLdownload_eqtlAllAsso</span>(<span class="at">gene=</span><span class="st">&quot;ENSG00000109684&quot;</span>, </span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>                                     <span class="at">tissueLabel =</span> tissueSiteDetail)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>gwasEqtldata <span class="ot">&lt;-</span> <span class="fu">merge</span>(gwasDF, eqtlAsso[,.(<span class="at">rsid=</span>snpId, <span class="at">position=</span>pos, maf, pValue)],</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>                      <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>, <span class="st">&quot;position&quot;</span>), <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">&quot;.gwas&quot;</span>,<span class="st">&quot;.eqtl&quot;</span>))</span></code></pre></div>
 <p>Function <code>xQTLvisual_locusCompare</code> displays the candidate
 SNP <strong><em>rs13120565</em></strong>
 (SNP.PP.H4=<strong>0.5328849</strong> &amp;
 hypr_posterior_explainedBySnp=<strong>0.4747</strong>) in the top right
 corner:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCompare</span>(gwasEqtldata[,.(rsid, pValue.eqtl)], </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                        gwasEqtldata[,.(rsid, pValue.gwas)], <span class="at">legend_position =</span> <span class="st">&quot;bottomright&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">xQTLvisual_locusCompare</span>(gwasEqtldata[,.(rsid, pValue.eqtl)], </span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>                        gwasEqtldata[,.(rsid, pValue.gwas)], <span class="at">legend_position =</span> <span class="st">&quot;bottomright&quot;</span>)</span></code></pre></div>
 <p><strong>Note: </strong>The information on SNP linkage disequilibrium
 is automatically downloaded online. Due to network issues, the download
 may fail at times. If this happens, please try running it again.</p>
 <p>Locuszoom plot of GWAS signals:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.gwas)], <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p>Locuszoom plot of eQTL signals:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.eqtl)], </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">highlightSnp =</span> <span class="st">&quot;rs13120565&quot;</span>, <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p>Violin plot of normalized exprssion of eQTL
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.gwas)], <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<p>LocusZoom plot of eQTL signals:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">xQTLvisual_locusZoom</span>(gwasEqtldata[,.(rsid, chrom, position, pValue.eqtl)], </span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>                     <span class="at">highlightSnp =</span> <span class="st">&quot;rs13120565&quot;</span>, <span class="at">legend=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<p>Violin plot of normalized expression of eQTL
 (rs13120565-ENSG00000187323.11):</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_eqtlExp</span>(<span class="st">&quot;rs13120565&quot;</span>, <span class="st">&quot;ENSG00000109684.14&quot;</span>, <span class="at">tissueSiteDetail =</span> tissueSiteDetail)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">xQTLvisual_eqtlExp</span>(<span class="st">&quot;rs13120565&quot;</span>, <span class="st">&quot;ENSG00000109684&quot;</span>, <span class="at">tissueSiteDetail =</span> tissueSiteDetail)</span></code></pre></div>
 <p>We can also combine locuscompare and locuszoom plot using
 <code>xQTLvisual_locusCombine</code>:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xQTLvisual_locusCombine</span>(gwasEqtldata[,<span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>,<span class="st">&quot;chrom&quot;</span>, <span class="st">&quot;position&quot;</span>, <span class="st">&quot;pValue.gwas&quot;</span>, <span class="st">&quot;pValue.eqtl&quot;</span>)], </span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">highlightSnp=</span><span class="st">&quot;rs13120565&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">xQTLvisual_locusCombine</span>(gwasEqtldata[,<span class="fu">c</span>(<span class="st">&quot;rsid&quot;</span>,<span class="st">&quot;chrom&quot;</span>, <span class="st">&quot;position&quot;</span>, <span class="st">&quot;pValue.gwas&quot;</span>, <span class="st">&quot;pValue.eqtl&quot;</span>)], </span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>                        <span class="at">highlightSnp=</span><span class="st">&quot;rs13120565&quot;</span>)</span></code></pre></div>
 <p>Colocalized loci should show a general pattern where SNPs in high LD
 will show strong associations with expression levels of the colocalized
 gene, and the eQTL associations will weaken for SNPs in lower LD. This
@@ -471,10 +498,10 @@ strength of which indicates the power of the regulatory effect of the
 variant. We can visualize the correlation between p-values of eQTLs and
 LD across numerous tissues/cell types to easily distinguish this patten
 using <code>xQTLvisual_coloc</code>:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>multi_tissue_coloc <span class="ot">&lt;-</span> <span class="fu">xQTLvisual_coloc</span>(<span class="at">gene=</span><span class="st">&quot;ENSG00000109684.14&quot;</span>, <span class="at">variantName=</span><span class="st">&quot;rs13120565&quot;</span>, </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">tissueLabels =</span> <span class="fu">c</span>(<span class="st">&quot;Brain - Cerebellar Hemisphere&quot;</span>, </span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                                                        <span class="st">&quot;Brain - Cerebellum&quot;</span>, <span class="st">&quot;Thyroid&quot;</span>, <span class="st">&quot;Lung&quot;</span>,</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                                                        <span class="st">&quot;Cells - EBV-transformed lymphocytes&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>multi_tissue_coloc <span class="ot">&lt;-</span> <span class="fu">xQTLvisual_coloc</span>(<span class="at">gene=</span><span class="st">&quot;ENSG00000109684&quot;</span>, <span class="at">variantName=</span><span class="st">&quot;rs13120565&quot;</span>, </span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>                                      <span class="at">tissueLabels =</span> <span class="fu">c</span>(<span class="st">&quot;Brain - Cerebellar Hemisphere&quot;</span>, </span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>                                                        <span class="st">&quot;Brain - Cerebellum&quot;</span>, <span class="st">&quot;Thyroid&quot;</span>, <span class="st">&quot;Lung&quot;</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>                                                        <span class="st">&quot;Cells - EBV-transformed lymphocytes&quot;</span>))</span></code></pre></div>
 <p>For applying <code>xQTLbiolinks</code> to a whole case study, please
 find this <a href="https://dingruofan.github.io/xQTLbiolinks/articles/Colocalization_analysis_with_xQTLbiolinks.html"><strong>Document</strong></a>.</p>
 </div>

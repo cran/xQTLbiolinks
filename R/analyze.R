@@ -32,7 +32,7 @@
 #'
 #' @examples
 #' \donttest{
-#' url<-"http://raw.githubusercontent.com/dingruofan/exampleData/master/GLGC.txt"
+#' url<-"https://master.dl.sourceforge.net/project/exampledata/GLGC.txt"
 #' gwasDF <- data.table::fread(url)
 #' gwasDF <- gwasDF[, .(rsid, chr, position, P, maf, beta, se)]
 #' sentinelSnpDF <- xQTLanalyze_getSentinelSnp(gwasDF)
@@ -87,8 +87,6 @@ xQTLanalyze_getSentinelSnp <- function(gwasDF, pValueThreshold=5e-8, centerRange
     gwasDF <- gwasDF[,.(rsid, chr, position, pValue, maf, beta, se)]
     message("== ",length(gwasRanges_hg38),"/",nrow(gwasDF)," left.")
     rm(gwasRanges, gwasRanges_hg38)
-  }else if(genomeVersion =="grch37" & !grch37To38){
-    stop("Please set \"grch37To38=TRUE\". Because the genome version of eqtl associations only support GRCH38, sentinel SNP should be converted to GRCH38 before colocalization analysis if GRCH37 is provided.")
   }else if(genomeVersion =="grch38" & grch37To38){
     stop("Only grch37 genome version can be converted to grch38!")
   }else if(!genomeVersion %in% c("grch38", "grch37")){
@@ -145,7 +143,7 @@ xQTLanalyze_getSentinelSnp <- function(gwasDF, pValueThreshold=5e-8, centerRange
 #' traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
 #'                                    genomeVersion="grch37", grch37To38=TRUE)
 #' # with a egene file:
-#' egeneFile <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/egeneDF.txt"
+#' egeneFile <- "https://master.dl.sourceforge.net/project/exampledata/egeneDF.txt"
 #' egeneDF <- data.table::fread(egeneFile)
 #' traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
 #'                                    genomeVersion="grch37", grch37To38=TRUE, egeneDF=egeneDF)
@@ -165,8 +163,11 @@ xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDeta
   # (未做) 由于下一步的 xQTLdownload_eqtlPost 函数只能 query 基于 hg38(v26) 的突变 1e6 bp附近的基因，所以如果输入的GWAS是 hg19 的突变坐标，需要进行转换为38，然后再进行下一步 eqtl sentinel snp filter.
   # 由于从 EBI category 里获得的是 hg38(v26) 的信息，所以如果这一步是 hg19 的1e6范围内，则在 hg38里就会未必，所以需要这一步，如果是hg19，则对突变的坐标进行变换：
   ####################### convert hg19 to hg38:
-  if( genomeVersion =="grch37" & !grch37To38 ){
+  if( genomeVersion =="grch37" & !grch37To38 & tissueSiteDetail!="" ){
     stop("Because the genome version of eqtl associations only support GRCH38, sentinel SNP should be converted to GRCH38 before colocalization analysis if GRCH37 is provided.")
+    genecodeVersion = "v19"
+    datasetId="gtex_v7"
+  }else if(genomeVersion =="grch37" & !grch37To38  & tissueSiteDetail==""){
     genecodeVersion = "v19"
     datasetId="gtex_v7"
   }else if( genomeVersion =="grch37" & grch37To38){
@@ -451,7 +452,6 @@ xQTLanalyze_coloc <- function(gwasDF, traitGene, geneType="auto", genomeVersion=
   }
 }
 
-
 #' @title conduct colocalization analysis with customized xQTL data
 #'
 #' @param gwasDF data.frame or data.table, required cols: rsid, chrom, position, pValue, maf, beta, se
@@ -549,6 +549,8 @@ xQTLanalyze_coloc_diy <- function(gwasDF, qtlDF, mafThreshold=0.01, gwasSampleNu
     return(list(coloc_Out_summary=coloc_Out_summary, gwasEqtlInfo=gwasEqtlInfo))
   }
 }
+
+
 
 
 
