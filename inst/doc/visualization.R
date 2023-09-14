@@ -91,7 +91,7 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 # knitr::include_graphics("images/visualization/visualization_locusCompare.png")
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  gwasEqtldata <- data.table::fread("https://master.dl.sourceforge.net/project/exampledata/gwas/AD/gwasEqtldata.txt")
+#  gwasEqtldata <- data.table::fread("http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/gwas/AD/gwasEqtldata.txt")
 #  xQTLvisual_locusCombine(gwasEqtldata, highlightSnp="rs13120565")
 
 ## ---- xQTLvisual_locusCombine.png, fig.align = 'center', out.width = "90%", fig.cap = "", echo=FALSE----

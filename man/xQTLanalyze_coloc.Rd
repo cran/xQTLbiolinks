@@ -38,7 +38,7 @@ xQTLanalyze_coloc(
 
 \item{gwasSampleNum}{Sample number of GWAS dataset. Default:50000.}
 
-\item{method}{(character) options: "coloc"(default) or "hyprcoloc". Package \code{coloc} or \code{hyprcoloc} is required.}
+\item{method}{(character) options: "coloc"(default) or "hyprcoloc" (must be updated to the latest version from the github to use hyprcoloc ). Package \code{coloc} or \code{hyprcoloc} is required.}
 
 \item{token}{LDlink provided user token, default = NULL, register for token at https://ldlink.nci.nih.gov/?tab=apiaccess}
 
@@ -52,7 +52,7 @@ Conduct colocalization analysis with trait genes generated from \code{xQTLanalyz
 }
 \examples{
 \donttest{
-url1 <- "http://raw.githubusercontent.com/dingruofan/exampleData/master/gwasDFsub_MMP7.txt"
+url1 <- "http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/gwasDFsub_MMP7.txt"
 gwasDF <- data.table::fread(url1)
 output <- xQTLanalyze_coloc(gwasDF = gwasDF, traitGene= "MMP7", tissueSiteDetail="Prostate")
 }

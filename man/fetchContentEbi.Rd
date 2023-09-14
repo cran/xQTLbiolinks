@@ -2,7 +2,7 @@
 % Please edit documentation in R/query.R
 \name{fetchContentEbi}
 \alias{fetchContentEbi}
-\title{Fetch records from}
+\title{Fetch variant from Ebi}
 \usage{
 fetchContentEbi(
   url1,
@@ -27,6 +27,6 @@ fetchContentEbi(
 A data.table object.
 }
 \description{
-Fetch records from
+Fetch variant from Ebi
 }
 \keyword{internal}

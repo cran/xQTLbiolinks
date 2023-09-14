@@ -17,13 +17,13 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 
 ## ---- message=FALSE, warning=FALSE, include=FALSE-----------------------------
 temp1 <- tempfile(fileext=".zip")
-download.file("https://master.dl.sourceforge.net/project/exampledata/env_new.zip", temp1)
+download.file("http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/env_new.zip", temp1)
 load(unz(temp1,"env_new.RData"))
 close(file(temp1))
 rm(temp1)
 
 ## ---- results = 'hide', echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----
-#  gwasDF <- fread("https://master.dl.sourceforge.net/project/exampledata/gwasDFsub.txt")
+#  gwasDF <- fread("http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/gwasDFsub.txt")
 #  tissueSiteDetail="Brain - Cerebellum"
 
 ## ---- eval=TRUE---------------------------------------------------------------

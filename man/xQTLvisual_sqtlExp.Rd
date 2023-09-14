@@ -2,13 +2,21 @@
 % Please edit documentation in R/visualize.R
 \name{xQTLvisual_sqtlExp}
 \alias{xQTLvisual_sqtlExp}
-\title{Boxplot of normalized expression among genotypes for sQTL.}
+\title{Boxplot of normalized PSI stratified by genotypes for sQTL.}
 \usage{
 xQTLvisual_sqtlExp(
   variantName = "",
   phenotypeId = "",
   variantType = "auto",
-  tissueSiteDetail = ""
+  tissueSiteDetail = "",
+  axis_text_size = 1.3,
+  axis_title_size = 1.3,
+  title_size = 1.4,
+  xlab_text = "Genotypes",
+  ylab_text = "Norm.Intron-Excision Ratio",
+  ylim_v = NULL,
+  title_text = "",
+  jitter_color = NULL
 )
 }
 \arguments{
@@ -19,15 +27,26 @@ xQTLvisual_sqtlExp(
 \item{variantType}{(character) options: "auto", "snpId" or "variantId". Default: "auto".}
 
 \item{tissueSiteDetail}{(character) details of tissues in GTEx can be listed using \code{tissueSiteDetailGTExv8} or \code{tissueSiteDetailGTExv7}}
+
+\item{axis_text_size}{(numberic) text size of the axis labels}
+
+\item{axis_title_size}{(numberic) text size of the axis title}
+
+\item{title_size}{(numberic) text size of the title of the plot}
+
+\item{xlab_text}{(character) Lable for x-axis}
+
+\item{ylab_text}{(character) Lable for x-axis}
+
+\item{ylim_v}{(numeric vector) Set scale limits}
+
+\item{title_text}{(character) Title of the plot}
+
+\item{jitter_color}{(A character vector) Set the point color.}
 }
 \value{
 A list containing variant detail, expression profile and a ggplot object.
 }
 \description{
-Boxplot of normalized expression among genotypes for sQTL.
-}
-\examples{
-expSqtl <-xQTLvisual_sqtlExp(variantName="chr11_66561248_T_C_b38",
-          phenotypeId ="chr11:66348070:66353455:clu_8500:ENSG00000255468.6",
-          tissueSiteDetail="Skin - Sun Exposed (Lower leg)")
+Boxplot of normalized PSI stratified by genotypes for sQTL.
 }

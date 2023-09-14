@@ -1,4 +1,4 @@
-#' @title Detect sentinel SNPs in a given summary statistis dataset.
+#' @title Detect sentinel SNPs for GWAS using summary statistics data
 #' @description
 #'  Return sentinel snps whose pValue < 5e-8(default) and SNP-to-SNP distance > 1e6 bp.
 #' @param gwasDF A data.frame or a data.table object. Five columns are required (arbitrary column names is supported):
@@ -32,7 +32,7 @@
 #'
 #' @examples
 #' \donttest{
-#' url<-"https://master.dl.sourceforge.net/project/exampledata/GLGC.txt"
+#' url<-"http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/GLGC.txt"
 #' gwasDF <- data.table::fread(url)
 #' gwasDF <- gwasDF[, .(rsid, chr, position, P, maf, beta, se)]
 #' sentinelSnpDF <- xQTLanalyze_getSentinelSnp(gwasDF)
@@ -143,7 +143,7 @@ xQTLanalyze_getSentinelSnp <- function(gwasDF, pValueThreshold=5e-8, centerRange
 #' traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
 #'                                    genomeVersion="grch37", grch37To38=TRUE)
 #' # with a egene file:
-#' egeneFile <- "https://master.dl.sourceforge.net/project/exampledata/egeneDF.txt"
+#' egeneFile <- "http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/egeneDF.txt"
 #' egeneDF <- data.table::fread(egeneFile)
 #' traitsAll <- xQTLanalyze_getTraits(sentinelSnpDF, detectRange=1e4,"Brain - Cerebellum",
 #'                                    genomeVersion="grch37", grch37To38=TRUE, egeneDF=egeneDF)
@@ -300,7 +300,7 @@ xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDeta
 #' @param population Supported population is consistent with the LDlink, which can be listed using function "LDlinkR::list_pop()"
 #' @param gwasSampleNum Sample number of GWAS dataset. Default:50000.
 #' @param token LDlink provided user token, default = NULL, register for token at https://ldlink.nci.nih.gov/?tab=apiaccess
-#' @param method (character) options: "coloc"(default) or "hyprcoloc". Package `coloc` or `hyprcoloc` is required.
+#' @param method (character) options: "coloc"(default) or "hyprcoloc" (must be updated to the latest version from the github to use hyprcoloc ). Package `coloc` or `hyprcoloc` is required.
 #' @param bb.alg For `hyprcoloc`, branch and bound algorithm: TRUE, employ BB algorithm; FALSE, do not. Default: FALSE.
 #'
 #' @return A list of coloc result and details.
@@ -308,7 +308,7 @@ xQTLanalyze_getTraits <- function(sentinelSnpDF, detectRange=1e6, tissueSiteDeta
 #'
 #' @examples
 #' \donttest{
-#' url1 <- "http://raw.githubusercontent.com/dingruofan/exampleData/master/gwasDFsub_MMP7.txt"
+#' url1 <- "http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/gwasDFsub_MMP7.txt"
 #' gwasDF <- data.table::fread(url1)
 #' output <- xQTLanalyze_coloc(gwasDF = gwasDF, traitGene= "MMP7", tissueSiteDetail="Prostate")
 #' }
@@ -447,12 +447,11 @@ xQTLanalyze_coloc <- function(gwasDF, traitGene, geneType="auto", genomeVersion=
     # coloc_Out_summary$pearsonCoor <- cor(-log(gwasEqtlInfo$pValue.gwas, 10),-log(gwasEqtlInfo$pValue.eqtl, 10), method = "pearson")
 
     return(list(coloc_Out_summary=coloc_Out_summary, gwasEqtlInfo=gwasEqtlInfo))
-  }else{
-    stop("Please select the correct method...")
   }
 }
 
-#' @title conduct colocalization analysis with customized xQTL data
+
+#' @title Conduct colocalization analysis with customized QTL data
 #'
 #' @param gwasDF data.frame or data.table, required cols: rsid, chrom, position, pValue, maf, beta, se
 #' @param qtlDF data.frame or data.table, required cols:  rsid, chrom, position, pValue, maf, beta, se
@@ -466,8 +465,8 @@ xQTLanalyze_coloc <- function(gwasDF, traitGene, geneType="auto", genomeVersion=
 #' @export
 #' @examples
 #' \donttest{
-#' url1 <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/gwasDFsub_MMP7.txt"
-#' url2 <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/eqtl/MMP7_qtlDF.txt"
+#' url1 <- "http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/gwasDFsub_MMP7.txt"
+#' url2 <- "http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/eqtl/MMP7_qtlDF.txt"
 #' gwasDF <- data.table::fread(url1)
 #' qtlDF <- data.table::fread(url2)
 #' output <- xQTLanalyze_coloc_diy(gwasDF = gwasDF, qtlDF=qtlDF, method="coloc")
@@ -517,9 +516,11 @@ xQTLanalyze_coloc_diy <- function(gwasDF, qtlDF, mafThreshold=0.01, gwasSampleNu
   # 去重：
   gwasDF <- gwasDF[order(rsid, pValue)][!duplicated(rsid)]
   # retain SNPs with rs id:
-  gwasDF <- gwasDF[stringr::str_detect(rsid,stringr::regex("^rs")),]
+  # gwasDF <- gwasDF[stringr::str_detect(rsid,stringr::regex("^rs")),]
 
   message(nrow(gwasDF))
+
+
 
   #
   gwasEqtlInfo <- merge(gwasDF, eqtlInfo[,.(rsid, maf, pValue, position,beta, se)], by=c("rsid", "position"), suffixes = c(".gwas",".eqtl"))
@@ -547,6 +548,9 @@ xQTLanalyze_coloc_diy <- function(gwasDF, qtlDF, mafThreshold=0.01, gwasSampleNu
     # coloc_Out_summary$pearsonCoor <- cor(-log(gwasEqtlInfo$pValue.gwas, 10),-log(gwasEqtlInfo$pValue.eqtl, 10), method = "pearson")
 
     return(list(coloc_Out_summary=coloc_Out_summary, gwasEqtlInfo=gwasEqtlInfo))
+  }
+  if(method=="hyprcoloc"){
+    stop("Please install package hyprcoloc and update to the latest version (v1.6.3) ")
   }
 }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{xQTLvisual_anno}
 \alias{xQTLvisual_anno}
-\title{Visualizing annotated variants}
+\title{Visualize enrichment of variants derived from \code{xQTLanno_genomic}}
 \usage{
 xQTLvisual_anno(snpHits, pValueBy = 5, annoType = "enrichment")
 }
@@ -17,13 +17,5 @@ xQTLvisual_anno(snpHits, pValueBy = 5, annoType = "enrichment")
 A ggplot object
 }
 \description{
-Visualizing annotated variants
-}
-\examples{
-\donttest{
-url1 <- "https://master.dl.sourceforge.net/project/exampledata/gwas/gwasSub.txt.gz"
-snpInfo <- fread(url1, sep="\t")
-snpHits <- xQTLanno_genomic(snpInfo)
-
-}
+Visualize enrichment of variants derived from \code{xQTLanno_genomic}
 }

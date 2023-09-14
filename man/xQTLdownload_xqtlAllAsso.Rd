@@ -2,7 +2,7 @@
 % Please edit documentation in R/download.R
 \name{xQTLdownload_xqtlAllAsso}
 \alias{xQTLdownload_xqtlAllAsso}
-\title{Download summary statistics of xQTL of a specified gene in GTEx v8, default:3'aQTL}
+\title{Download summary statistics of xQTL for a specified gene, default:3'aQTL}
 \usage{
 xQTLdownload_xqtlAllAsso(
   genes = "",
@@ -30,10 +30,5 @@ xQTLdownload_xqtlAllAsso(
 A data.table object of xQTL dataset.
 }
 \description{
-Download summary statistics of xQTL of a specified gene in GTEx v8, default:3'aQTL
-}
-\examples{
-\donttest{
-aQTL_DT <- xQTLdownload_xqtlAllAsso(genes=c("MMP7", "EPS15"), tissue="Lung")
-}
+Download summary statistics of xQTL for a specified gene, default:3'aQTL
 }

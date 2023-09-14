@@ -6,6 +6,10 @@
 \title{samples used in GTEx eQTL analysis.}
 \format{
 A data frame with 49 rows and 2 variables:
+\describe{
+\item{tissueSiteDetailId}{character string, tissue name}
+\item{sampleNum}{integer}
+}
 }
 \source{
 \url{https://gtexportal.org/home/}

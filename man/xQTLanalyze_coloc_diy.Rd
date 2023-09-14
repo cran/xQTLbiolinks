@@ -2,7 +2,7 @@
 % Please edit documentation in R/analyze.R
 \name{xQTLanalyze_coloc_diy}
 \alias{xQTLanalyze_coloc_diy}
-\title{conduct colocalization analysis with customized xQTL data}
+\title{Conduct colocalization analysis with customized QTL data}
 \usage{
 xQTLanalyze_coloc_diy(
   gwasDF,
@@ -33,12 +33,12 @@ xQTLanalyze_coloc_diy(
 A list
 }
 \description{
-conduct colocalization analysis with customized xQTL data
+Conduct colocalization analysis with customized QTL data
 }
 \examples{
 \donttest{
-url1 <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/gwasDFsub_MMP7.txt"
-url2 <- "https://raw.githubusercontent.com/dingruofan/exampleData/master/eqtl/MMP7_qtlDF.txt"
+url1 <- "http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/gwasDFsub_MMP7.txt"
+url2 <- "http://bioinfo.szbl.ac.cn/xQTL_biolinks/xqtl_data/eqtl/MMP7_qtlDF.txt"
 gwasDF <- data.table::fread(url1)
 qtlDF <- data.table::fread(url2)
 output <- xQTLanalyze_coloc_diy(gwasDF = gwasDF, qtlDF=qtlDF, method="coloc")

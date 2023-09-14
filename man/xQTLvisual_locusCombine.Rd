@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{xQTLvisual_locusCombine}
 \alias{xQTLvisual_locusCombine}
-\title{Generate a combined figure including locuszoom and locuscompare plot object.}
+\title{Generate a combined figure including locusZoom and locuscompare plot}
 \usage{
 xQTLvisual_locusCombine(
   gwasEqtldata,
@@ -41,12 +41,4 @@ A ggplot object.
 }
 \description{
 This function is rebuilt from \code{locuscompare.R} (https://github.com/boxiangliu/locuscomparer/blob/master/R/locuscompare.R).
-}
-\examples{
-\donttest{
-# load data:
-u1 <-"https://master.dl.sourceforge.net/project/exampledata/gwas/AD/gwasEqtldata.txt"
-gwasEqtldata <- data.table::fread(u1)
-xQTLvisual_locusCombine(gwasEqtldata, highlightSnp="rs13120565")
-}
 }

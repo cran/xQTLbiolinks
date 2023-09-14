@@ -2,7 +2,7 @@
 % Please edit documentation in R/download.R
 \name{xQTLdownload_sc}
 \alias{xQTLdownload_sc}
-\title{download all sc-eQTL associations}
+\title{Download all sc-eQTL associations for a specified gene}
 \usage{
 xQTLdownload_sc(
   gene = "BIN3",
@@ -30,11 +30,5 @@ xQTLdownload_sc(
 A data.table object
 }
 \description{
-download all sc-eQTL associations
-}
-\examples{
-\donttest{
- xQTLdownload_sc(gene="TP53", cell_type = "B cell",
-                 qtl_type="Cell-type eQTL", study_name = "Resztak2022biorxiv")
-}
+Download all sc-eQTL associations for a specified gene
 }
